@@ -2,6 +2,7 @@
 %
 %  Thesis Work
 %    Run after starting bcilab and eeglab
+%       Can also run the Thesis_Start script
 %    Test to see how basic filtering looks
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
