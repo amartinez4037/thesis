@@ -9,7 +9,7 @@
 %% Set variables
 %clc
 % Channels used for ICA
-chanid = [9 11 13];
+chanid = [2 4 6 9 10 11 12 13];
 numchan = length(chanid);
 
 % Trials to be used for analysis
@@ -23,7 +23,8 @@ numsubjects = length(subject);
 %numsubjects = 1; % Only using 1 for testing
 
 % Types - for use in epoching data
-types = {'ERD', 'ERS'}; %, 'MRCP'};
+types = {'ERD', 'ERS', 'MRCP'};
+% types = {'ERD', 'ERS'}; %, 'MRCP'};
 numtypes = length(types);
 
 % Sides - T1=>Left, T2=>Right
@@ -37,7 +38,8 @@ numruns = numtypes * numsides;
 numepochs = 1;
 
 % Pre or post for epochs
-prepost = {'PRE'};%, 'POST'};
+prepost = {'PRE', 'POST'};
+% prepost = {'PRE'};%, 'POST'}; % uncomment for testing
 numprepost = length(prepost);
 
 % Define paths for data location and storage
@@ -47,6 +49,7 @@ filepath = '/home/amart/BCILAB-master/userscripts/'; % Location of storage folde
 
 % Prealocate size for features
 features = zeros(26, numepochs*numruns*numtrials*numsubjects);
+size(features)
 
 % Set each variable depending if process needs to be done
 do_import = 1; % If 0 will not edit channels, filter or artifact removal
@@ -128,26 +131,29 @@ for s = 1:numsubjects
             %% Filter data
             if (do_filter && do_import && do_edit_channels)
                 % Low edge of frequency filter: 0.5Hz
-                EEG = pop_iirfilt( EEG, 10, 0, [], [0]);
+                EEG = pop_iirfilt( EEG, 0.5, 0, [], [0]);
 
-                % High edge of frequency filter: 64Hz
-                EEG = pop_iirfilt( EEG, 0, 20, [], [0]);
+                % High edge of frequency filter: 45Hz 
+                    % If over 50 Hz then need to add Notch filter
+                EEG = pop_iirfilt( EEG, 0, 45, [], [0]);
             else
                 fprintf('\nSkipped Filtering\n');
             end
             
             %% EOG and EMG filtering and saving data
+                % Values set to default
             if (do_artifact_removal && do_import && do_edit_channels && do_filter)
                 % EOG removal using BSS - sobi - ...
-%                 EEG = pop_autobsseog( EEG, [123], [123], 'sobi',...
-%                     {'eigratio', [1000000]}, 'eog_fd', {'range',[2 21]});
-% 
-%                 % EMG removal using BSS
-%                 EEG = pop_autobssemg( EEG, [81.9188], [81.9188], 'bsscca',...
-%                     {'eigratio', [1000000]}, 'emg_psd', {'ratio', [10], 'fs', [160], 'femg', [15],...
-%                     'estimator', spectrum.welch({'Hamming'}, 80),'range', [0 32]});
+                EEG = pop_autobsseog( EEG, [123], [123], 'sobi',...
+                    {'eigratio', [1000000]}, 'eog_fd', {'range',[2 21]});
+
+                % EMG removal using BSS
+                EEG = pop_autobssemg( EEG, [81.9188], [81.9188], 'bsscca',...
+                    {'eigratio', [1000000]}, 'emg_psd', {'ratio', [10], 'fs', [160], 'femg', [15],...
+                    'estimator', spectrum.welch({'Hamming'}, 80),'range', [0 32]});
 
                 % Save the dataset as it is ready to be epoched
+                    % SaveName: aaaSubject{s}Trial{t}_EqochReady.set
                 %fprintf('\nSaving dataset as: %s_EpochReady\n', savename)
                 EEG = pop_editset(EEG, 'setname', [savename '_EpochReady']);
                 EEG = pop_saveset(EEG,'filename',['aaa' savename '_EpochReady.set'],'filepath',filepath);
@@ -155,7 +161,7 @@ for s = 1:numsubjects
                 fprintf('\nSkipped Artifact Removal\n');
             end
 
-            %% Epoch data
+            %% Epoch data and perform ICA
             if (do_epoch)
                 % Porper dataset will be loaded before epoching
                 % Each epoch will be saved after going through ICA
@@ -170,7 +176,7 @@ for s = 1:numsubjects
                 T = {'12628', '12884'};
                 
                 % PRE and POST information
-                PRE = [-0.5 2.5]; 
+                PRE = [-2.0 0.0]; 
                 POST = [4.1 6.1];
                 P = [PRE; POST];
         
@@ -221,6 +227,7 @@ for s = 1:numsubjects
                         else
                             % Low edge of frequency filter: 8Hz
                             EEG = pop_iirfilt( EEG, 8, 0, [], [0]);
+
                             % High edge of frequency filter: 30Hz
                             EEG = pop_iirfilt( EEG, 0, 30, [], [0]);
                         end
