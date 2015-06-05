@@ -14,11 +14,13 @@ numchan = length(chanid);
 
 % Trials to be used for analysis
 trial = {'R03', 'R07', 'R11'};
+%trial = {'R03'}; %, 'R07', 'R11'}; % For testing
 numtrials = length(trial);  
 %numtrials = 2; % Change for testing
 
 % Subjects
 subject = {'S001','S002','S003','S004','S005','S006'};
+%subject = {'S001'}; %,'S002','S003','S004','S005','S006'}; % For testing
 numsubjects = length(subject);  
 %numsubjects = 1; % Only using 1 for testing
 
@@ -45,7 +47,7 @@ numprepost = length(prepost);
 % Define paths for data location and storage
 % Paths for folders were data located and where to store data
 homepath = '/home/amart/Physionet Data/EDF/'; % Location of EDF files
-filepath = '/home/amart/BCILAB-master/userscripts/'; % Location of storage folder
+filepath = '/home/amart/BCILAB-master/userscripts2/'; % Location of storage folder
 
 % Prealocate size for features
 features = zeros(26, numepochs*numruns*numtrials*numsubjects);
@@ -58,8 +60,8 @@ do_filter = 1;
 do_artifact_removal = 1;
 
 do_epoch = 1;
-do_rhythmiso = 0;
-do_features = 0;
+do_rhythmiso = 1;
+do_features = 1;
 
 %% Start looping through subjects and trials
 for s = 1:numsubjects
@@ -156,7 +158,7 @@ for s = 1:numsubjects
                     % SaveName: aaaSubject{s}Trial{t}_EqochReady.set
                 %fprintf('\nSaving dataset as: %s_EpochReady\n', savename)
                 EEG = pop_editset(EEG, 'setname', [savename '_EpochReady']);
-                EEG = pop_saveset(EEG,'filename',['aaa' savename '_EpochReady.set'],'filepath',filepath);
+                EEG = pop_saveset(EEG,'filename',[savename '_EpochReady.set'],'filepath',filepath);
             else
                 fprintf('\nSkipped Artifact Removal\n');
             end
@@ -184,7 +186,7 @@ for s = 1:numsubjects
                     for pp = 1:numprepost
                         %% Epoch                        
                         % Load Proper Dataset
-                        EEG = pop_loadset('filename', ['aaa' savename '_EpochReady.set'],'filepath',filepath);
+                        EEG = pop_loadset('filename', [savename '_EpochReady.set'],'filepath',filepath);
               
                         % Epoch
                         EEG = pop_epoch(EEG, { T{si} }, P(pp,:) , 'epochinfo', 'yes');
@@ -193,10 +195,10 @@ for s = 1:numsubjects
                         %EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
 
                         % Save the dataset for each epoched set
-                        %fprintf('\nSaving %s %s %s\n\n', savename, sides{m}, prepost{u});
+                        fprintf('\nSaving %s %s %s\n\n', savename, sides{m}, prepost{u});
                         EEG = pop_editset(EEG, 'setname', [savename '_' sides{si} '_' prepost{pp} '']);
                         EEG = pop_saveset(EEG, 'filename',...
-                            ['aaa' savename '_' sides{si} '_' prepost{pp} '.set'],'filepath',filepath);
+                            [savename '_' sides{si} '_' prepost{pp} '_ICA.set'],'filepath',filepath);
 
                     end
                 end
@@ -205,6 +207,7 @@ for s = 1:numsubjects
                 fprintf('\nSkipped Epochs\n');
             end % end epoch extraction
             
+
             %% Rhythm Isolation
             if (do_rhythmiso)
                               
