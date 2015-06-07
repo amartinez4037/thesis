@@ -47,7 +47,7 @@ numprepost = length(prepost);
 % Define paths for data location and storage
 % Paths for folders were data located and where to store data
 homepath = '/home/amart/Physionet Data/EDF/'; % Location of EDF files
-filepath = '/home/amart/BCILAB-master/userscripts2/'; % Location of storage folder
+filepath = '/home/amart/BCILAB-master/userscripts/'; % Location of storage folder
 
 % Prealocate size for features
 features = zeros(26, numepochs*numruns*numtrials*numsubjects);
@@ -192,10 +192,10 @@ for s = 1:numsubjects
                         EEG = pop_epoch(EEG, { T{si} }, P(pp,:) , 'epochinfo', 'yes');
                         
                         % ICA 
-                        %EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
+                        EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
 
                         % Save the dataset for each epoched set
-                        fprintf('\nSaving %s %s %s\n\n', savename, sides{m}, prepost{u});
+                        fprintf('\nSaving %s %s %s\n\n', savename, sides{si}, prepost{pp});
                         EEG = pop_editset(EEG, 'setname', [savename '_' sides{si} '_' prepost{pp} '']);
                         EEG = pop_saveset(EEG, 'filename',...
                             [savename '_' sides{si} '_' prepost{pp} '_ICA.set'],'filepath',filepath);
