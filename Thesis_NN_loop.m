@@ -59,7 +59,7 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
 
         net.trainParam.epochs = 1000; 	% Sets max # of epochs to ...
 
-        % Train the Network
+        % Train the Network 
         [net,tr] = train(net,inputs,targets);
 
         % Test the Network
