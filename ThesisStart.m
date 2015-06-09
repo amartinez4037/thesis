@@ -5,7 +5,8 @@
 %%%%%%%%%%
 
 %% Add path to BCILAB
-addpath(genpath('/home/amart/BCILAB-master'));
+addpath(genpath('/home/amart/BCILAB-master')); % For engrX Server
+% addpath(genpath('/opt/matlab/opt/BCILAB-1.1')); % For Quantum Server
 
 % Bring in AAR toolbox
 %eeglabRoot = fileparts(which('eeglab'));
@@ -20,7 +21,6 @@ eeglab;
 
 %cd /home/amart/
 %addpath(genpath('/home/amart/BCILAB-master'));
+
 % Clear workspace
 clc;
-
-% ThesisTest;
