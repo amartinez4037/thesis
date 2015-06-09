@@ -248,7 +248,7 @@ for s = 1:numsubjects
 
                         % Save the dataset (as)
                         EEG = pop_editset(EEG, 'setname', [savename '_' sides{si} '_' types{ty}]);
-                        EEG = pop_saveset(EEG, 'filename', [savename '_' sides{si} '_' types{ty} '.set'],'filepath',filepath);
+                        EEG = pop_saveset(EEG, 'filename', [savename '_' sides{si} '_' types{ty} 'ICAlast.set'],'filepath',filepath);
                     end
                 end
                 
@@ -273,7 +273,7 @@ for s = 1:numsubjects
                         
                         % Load Proper Dataset
                         EEG = pop_loadset('filename',...
-                            [savename '_' sides{si} '_' types{ty} '.set'],'filepath',filepath);                         
+                            [savename '_' sides{si} '_' types{ty} 'ICAlast.set'],'filepath',filepath);                         
                         
                         for e = 1: numepochs % For the 7 epochs
                             % Preallocate zeros to avoid resizing matrix each iteration
