@@ -192,13 +192,13 @@ for s = 1:numsubjects
                         EEG = pop_epoch(EEG, { T{si} }, P(pp,:) , 'epochinfo', 'yes');
                         
                         % ICA 
-                        EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
+                        % EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
 
                         % Save the dataset for each epoched set
                         fprintf('\nSaving %s %s %s\n\n', savename, sides{si}, prepost{pp});
                         EEG = pop_editset(EEG, 'setname', [savename '_' sides{si} '_' prepost{pp} '']);
                         EEG = pop_saveset(EEG, 'filename',...
-                            [savename '_' sides{si} '_' prepost{pp} '_ICA.set'],'filepath',filepath);
+                            [savename '_' sides{si} '_' prepost{pp} '_Epoched.set'],'filepath',filepath);
 
                     end
                 end
@@ -223,7 +223,7 @@ for s = 1:numsubjects
                         end
                         
                         % Load proper dataset
-                        EEG = pop_loadset('filename', [savename '_' sides{si} '_' prepost{k} '_ICA.set'],'filepath',filepath);
+                        EEG = pop_loadset('filename', [savename '_' sides{si} '_' prepost{k} '_Epoched.set'],'filepath',filepath);
                        
                         if ty == 3
                             EEG = pop_iirfilt( EEG, 0, 3, [], [0]);
@@ -236,11 +236,15 @@ for s = 1:numsubjects
                         end
 
                         % Delete old activation and scalp maps
-                        EEG.icaact = [];
+                        %EEG.icaact = [];
                         % EEG.icawinv = []; % IF DELETED NEED TO FILL IN HOW??????????????
 
                         % recalculate acts and winv using specified channels
-                        EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
+                        %EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
+
+                        % ICA 
+                        EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
+
 
                         % Save the dataset (as)
                         EEG = pop_editset(EEG, 'setname', [savename '_' sides{si} '_' types{ty}]);
@@ -344,7 +348,7 @@ end
 %features;
 nninputs = features(9:25,:);
 %nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
-nntargets = features(26,:)
+nntargets = features(26,:);
 %nntargets = mapminmax(nntargets,mi,mx)
 
 
