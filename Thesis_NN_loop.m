@@ -18,10 +18,10 @@ targets = nntargets;
 size(inputs)
 size(targets)
 
-hiddenNeuronsStart = 3; % number of hidden neurons min
-hiddenNeuronsEnd = 15;   % number of hidden neurons max
-desiredPerc = 90;  % sets the desired train percentage to get correct
-trainSets = 5;  % sets number of training session per each hidden layer #
+hiddenNeuronsStart = 2; % number of hidden neurons min
+hiddenNeuronsEnd = 20;   % number of hidden neurons max
+desiredPerc = 85;  % sets the desired train percentage to get correct
+trainSets = 30;  % sets number of training session per each hidden layer #
 
 %% Perform loops
 for k = hiddenNeuronsStart:hiddenNeuronsEnd
@@ -103,6 +103,8 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         
         i = i+1;
     end
-    max(percentage)
+    % max(percentage)
 end
 percentage
+max(percentage)
+mean(percentage)
