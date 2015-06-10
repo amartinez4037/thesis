@@ -324,7 +324,7 @@ for s = 1:numsubjects
                             
                         end
                         % uncomment this to make sure features are being
-                        % extrcted correctly
+                        % extracted correctly
                         %start = ind - 6 %numepochs*((si - 1)*numtypes + (ty - 1)) + 1
                         %finish = start + numepochs - 1
                         %features(:,start:finish)
@@ -344,7 +344,7 @@ end
 %features;
 nninputs = features(1:25,:);
 %nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
-nntargets = features(26,:)
+nntargets = features(26,:);
 %nntargets = mapminmax(nntargets,mi,mx)
 
 
