@@ -37,7 +37,7 @@ numsides = length(sides);
 numruns = numtypes * numsides;
 
 % Epochs
-numepochs = 1;
+numepochs = 7;
 
 % Pre or post for epochs
 prepost = {'PRE', 'POST'};
@@ -342,7 +342,7 @@ end
 % Print the features
 %features(:,1) = [1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,1];
 %features;
-nninputs = features(9:25,:);
+nninputs = features(1:25,:);
 %nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
 nntargets = features(26,:)
 %nntargets = mapminmax(nntargets,mi,mx)
