@@ -1,18 +1,18 @@
 % 
 % Aron Martinez
 %
-% Pattern Recognition Neural Network 
-%   of letters A-H
+% Pattern Recognition using Neural Network 
+%   Allows setting of desired parameters for NN training
 %
 
 %% Intitialization 
 clc
 clear
 
-% Define the inputs and targets
-%NN_switch_adj_2
-%NN_final_project_2
-Thesis_test
+% ThesisStart % Uncomment when running from command line
+
+%% Define the inputs and targets
+Thesis_main
 inputs = nninputs;
 targets = nntargets;
 size(inputs)
@@ -105,6 +105,11 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
     end
     % max(percentage)
 end
+
 percentage
-max(percentage)
-mean(percentage)
+maxPerNN = max(percentage)
+avgPerNN = mean(percentage)
+
+save('temp', 'percentage', 'maxPerNN', 'avgPerNN')
+
+

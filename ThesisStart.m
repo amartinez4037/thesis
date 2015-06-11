@@ -21,6 +21,6 @@ eeglab;
 
 %cd /home/amart/
 %addpath(genpath('/home/amart/BCILAB-master'));
-
+cd ~
 % Clear workspace
 clc;

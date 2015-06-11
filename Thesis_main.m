@@ -39,6 +39,9 @@ numruns = numtypes * numsides;
 % Epochs
 numepochs = 7;
 
+% Features : [avg, pwr, ene]
+feat2use = [1,1,1];
+
 % Pre or post for epochs
 prepost = {'PRE', 'POST'};
 % prepost = {'PRE'};%, 'POST'}; % uncomment for testing
@@ -342,10 +345,33 @@ end
 % Print the features
 %features(:,1) = [1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,1];
 %features;
-nninputs = features(1:25,:);
+Avg = (1:8); Pow = (9:16); Ene = (17:24);
+Typ = 25; Tar = 26;
+range = [Avg; Pow; Ene];
+
+tot = sum(feat2use);
+k = 1;
+
+for rng = 1 : tot   
+
+    while feat2use(k) ~= 1
+        fprintf('Skipped K')
+        k = k+1;
+    end
+    
+    nninputs(range(rng,:),:) = features(range(k,:),:);
+    fprintf('range = %d', range(k,1))
+    k = k+1;
+end
+
+[row, col] = size(nninputs);
+
+nninputs(row+1,:) = features(Typ,:);
 %nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
-nntargets = features(26,:);
+nntargets = features(Tar,:);
 %nntargets = mapminmax(nntargets,mi,mx)
+%size(nninputs)
+%size(nntargets)
 
 
 
