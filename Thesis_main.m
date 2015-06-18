@@ -158,7 +158,7 @@ for s = 1:numsubjects
                     'estimator', spectrum.welch({'Hamming'}, 80),'range', [0 32]});
 
                 % Save the dataset as it is ready to be epoched
-                    % SaveName: aaaSubject{s}Trial{t}_EqochReady.set
+                    % SaveName: Subject{s}Trial{t}_EqochReady.set
                 %fprintf('\nSaving dataset as: %s_EpochReady\n', savename)
                 EEG = pop_editset(EEG, 'setname', [savename '_EpochReady']);
                 EEG = pop_saveset(EEG,'filename',[savename '_EpochReady.set'],'filepath',filepath);
@@ -171,11 +171,11 @@ for s = 1:numsubjects
                 % Porper dataset will be loaded before epoching
                 % Each epoch will be saved after going through ICA
                 
-                % 4 epochs total T1(L), T2(R)
-                %  T1 - 12628 - ERD/MRCP - [-2 0] 
-                %  T2 - 12884 - ERD/MRCP - [-2 0]
-                %  T1 - 12628 - ERS - [4.1 6.1] 
-                %  T2 - 12884 - ERS - [4.1 6.1]
+                % 4 epochs total where T1 is left and T2 is right
+                %  T1 - L - 12628 - ERD/MRCP - [-2 0] 
+                %  T2 - R - 12884 - ERD/MRCP - [-2 0]
+                %  T1 - L - 12628 - ERS - [4.1 6.1] 
+                %  T2 - R - 12884 - ERS - [4.1 6.1]
 
                 % Sides information 
                 T = {'12628', '12884'};
@@ -187,7 +187,7 @@ for s = 1:numsubjects
         
                 for si = 1:numsides
                     for pp = 1:numprepost
-                        %% Epoch                        
+                        %% Epoch and ICA                      
                         % Load Proper Dataset
                         EEG = pop_loadset('filename', [savename '_EpochReady.set'],'filepath',filepath);
               
@@ -286,6 +286,7 @@ for s = 1:numsubjects
                                 avg(n) = mean(EEG.icaact(n,:,e));
                                 %pwr(n) = bandpower(EEG.icaact(n,:,1), 320, [8 30]);
                                 pwr(n) = bandpower(EEG.icaact(n,:,e), length(EEG.icaact), [0 30]);
+                                length(EEG.icaact)
                                 %ene(n) = sum(sum(EEG.icaact(n,:,:).^2));
                                 ene(n) = sum(EEG.icaact(n,:,e).^2);
                             end
@@ -303,6 +304,7 @@ for s = 1:numsubjects
                                 side = 1;
                             else
                                 side = 5;
+                                fprintf("Side has been labeled as incorrect\n");
                             end
 
                             % Set type to proper value
@@ -314,6 +316,7 @@ for s = 1:numsubjects
                                 type = 3;
                             else
                                 type = 5;
+                                fprintf("Type has been labeled as incorrect\n");
                             end
 
                             %fprintf('\nFeature set for %s %s %s\n', savename, sides{m}, types{u});
@@ -322,10 +325,9 @@ for s = 1:numsubjects
                             
                             r = ty + numtypes*(si-1); % for indexing
                             ind = e + numepochs*(r - 1) + numruns*numepochs*(t - 1) + numruns*numtrials*numepochs*(s - 1);
-                            features(:,ind) = feature;
-                            
-                            
+                            features(:,ind) = feature;    
                         end
+
                         % uncomment this to make sure features are being
                         % extracted correctly
                         %start = ind - 6 %numepochs*((si - 1)*numtypes + (ty - 1)) + 1
@@ -342,9 +344,7 @@ for s = 1:numsubjects
     end
 end
 
-% Print the features
-%features(:,1) = [1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8,1,1];
-%features;
+% Set up NN inputs and targets
 Avg = (1:8); Pow = (9:16); Ene = (17:24);
 Typ = 25; Tar = 26;
 range = [Avg; Pow; Ene];
@@ -352,7 +352,7 @@ range = [Avg; Pow; Ene];
 tot = sum(feat2use);
 k = 1;
 
-for rng = 1 : tot   
+for rng = 1 : tot % fill in NNinputs depending on features chosen
 
     while feat2use(k) ~= 1
         fprintf('Skipped K')
@@ -367,11 +367,12 @@ end
 [row, col] = size(nninputs);
 
 nninputs(row+1,:) = features(Typ,:);
-%nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
 nntargets = features(Tar,:);
+
+
+%nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
 %nntargets = mapminmax(nntargets,mi,mx)
-%size(nninputs)
-%size(nntargets)
+
 
 
 
