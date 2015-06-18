@@ -49,8 +49,13 @@ numprepost = length(prepost);
 
 % Define paths for data location and storage
 % Paths for folders were data located and where to store data
-homepath = '/home/amart/Physionet Data/EDF/'; % Location of EDF files
-filepath = '/home/amart/BCILAB-master/userscripts/'; % Location of storage folder
+homepath = '/home/amartinez/thesis/PhysionetData2/'; % Quantum Location of EDF files
+filepath = '/home/amartinez/thesis/userscripts2/'; % Quantum Location of storage folder
+
+% eeglab paths for saving data
+% homepath = '/home/amart/Physionet Data/EDF/'; % Location of EDF files
+% filepath = '/home/amart/BCILAB-master/userscripts/'; % Location of storage folder
+
 
 % Prealocate size for features
 features = zeros(26, numepochs*numruns*numtrials*numsubjects);
@@ -132,15 +137,20 @@ for s = 1:numsubjects
             else
                 fprintf('\nSkipped Channel Locations\n');
             end
-            
+
             %% Filter data
             if (do_filter && do_import && do_edit_channels)
+                % To bandpass filter
+                EEG = pop_eegfiltnew(EEG, 0.5, 45, 1056, 0, [], 0);
+                
                 % Low edge of frequency filter: 0.5Hz
-                EEG = pop_iirfilt( EEG, 0.5, 0, [], [0]);
+                %EEG = pop_iirfilt( EEG, 0.5, 0, [], [0]);
+                %EEG = pop_eegfiltnew(EEG, [], 0.5, 1056, true, [], 0);
 
                 % High edge of frequency filter: 45Hz 
                     % If over 50 Hz then need to add Notch filter
-                EEG = pop_iirfilt( EEG, 0, 45, [], [0]);
+                %EEG = pop_iirfilt( EEG, 0, 45, [], [0]);
+                %EEG = pop_eegfiltnew(EEG, [], 45, 48, 0, [], 0);
             else
                 fprintf('\nSkipped Filtering\n');
             end
@@ -178,7 +188,8 @@ for s = 1:numsubjects
                 %  T2 - R - 12884 - ERS - [4.1 6.1]
 
                 % Sides information 
-                T = {'12628', '12884'};
+                %T = {'12628', '12884'};
+                T = {'2', '3'};
                 
                 % PRE and POST information
                 PRE = [-2.0 0.0]; 
@@ -196,6 +207,7 @@ for s = 1:numsubjects
                         
                         % ICA 
                         EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
+                        % EEG % Not finding EEG at the moment
 
                         % Save the dataset for each epoched set
                         fprintf('\nSaving %s %s %s\n\n', savename, sides{si}, prepost{pp});
@@ -227,15 +239,17 @@ for s = 1:numsubjects
                         
                         % Load proper dataset
                         EEG = pop_loadset('filename', [savename '_' sides{si} '_' prepost{k} '_ICA.set'],'filepath',filepath);
-                       
+                        
                         if ty == 3
-                            EEG = pop_iirfilt( EEG, 0, 3, [], [0]);
+                            EEG = pop_eegfiltnew(EEG, [], 3, 264, 0, [], 0);
+                            %EEG = pop_iirfilt( EEG, 0, 3, [], [0]);
                         else
+                            EEG = pop_eegfiltnew(EEG, 8, 30, 264, 0, [], 0);
                             % Low edge of frequency filter: 8Hz
-                            EEG = pop_iirfilt( EEG, 8, 0, [], [0]);
+                            %EEG = pop_iirfilt( EEG, 8, 0, [], [0]);
 
                             % High edge of frequency filter: 30Hz
-                            EEG = pop_iirfilt( EEG, 0, 30, [], [0]);
+                            %EEG = pop_iirfilt( EEG, 0, 30, [], [0]);
                         end
 
                         % Delete old activation and scalp maps
@@ -286,7 +300,6 @@ for s = 1:numsubjects
                                 avg(n) = mean(EEG.icaact(n,:,e));
                                 %pwr(n) = bandpower(EEG.icaact(n,:,1), 320, [8 30]);
                                 pwr(n) = bandpower(EEG.icaact(n,:,e), length(EEG.icaact), [0 30]);
-                                length(EEG.icaact)
                                 %ene(n) = sum(sum(EEG.icaact(n,:,:).^2));
                                 ene(n) = sum(EEG.icaact(n,:,e).^2);
                             end
@@ -337,42 +350,46 @@ for s = 1:numsubjects
                 end
       
             else
-                fprintf('\nSkipped Feature selection\n');
+                fprintf("\nSkipped Feature selection\n");
             end % end feature extraction
 
         end
     end
 end
 
-% Set up NN inputs and targets
-Avg = (1:8); Pow = (9:16); Ene = (17:24);
-Typ = 25; Tar = 26;
-range = [Avg; Pow; Ene];
 
-tot = sum(feat2use);
-k = 1;
 
-for rng = 1 : tot % fill in NNinputs depending on features chosen
+if (do_features) 
+    % Set up NN inputs and targets
+    Avg = (1:8); Pow = (9:16); Ene = (17:24);
+    Typ = 25; Tar = 26;
+    range = [Avg; Pow; Ene];
 
-    while feat2use(k) ~= 1
-        fprintf('Skipped K')
+    tot = sum(feat2use);
+    k = 1;
+
+    for rng = 1 : tot % fill in NNinputs depending on features chosen
+
+        while feat2use(k) ~= 1
+            fprintf('Skipped K')
+            k = k+1;
+        end
+        
+        nninputs(range(rng,:),:) = features(range(k,:),:);
+        fprintf('range = %d', range(k,1))
         k = k+1;
     end
-    
-    nninputs(range(rng,:),:) = features(range(k,:),:);
-    fprintf('range = %d', range(k,1))
-    k = k+1;
+
+    [row, col] = size(nninputs);
+
+    nninputs(row+1,:) = features(Typ,:);
+    nntargets = features(Tar,:);
+
+    %nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
+    %nntargets = mapminmax(nntargets,mi,mx)
+else
+    fprintf('No NN Inputs/Outputs\n');
 end
-
-[row, col] = size(nninputs);
-
-nninputs(row+1,:) = features(Typ,:);
-nntargets = features(Tar,:);
-
-
-%nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
-%nntargets = mapminmax(nntargets,mi,mx)
-
 
 
 
