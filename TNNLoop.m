@@ -6,22 +6,24 @@
 %
 
 %% Intitialization 
-clc
-clear
+%clc
+%clear
 
 % ThesisStart % Uncomment when running from command line
 
 %% Define the inputs and targets
-Thesis_main
+
+load nninoutenergy.mat;
+
 inputs = nninputs;
 targets = nntargets;
-size(inputs)
-size(targets)
+sizeInputs = size(inputs)
+sizeTargets = size(targets)
 
 hiddenNeuronsStart = 2; % number of hidden neurons min
 hiddenNeuronsEnd = 20;   % number of hidden neurons max
 desiredPerc = 85;  % sets the desired train percentage to get correct
-trainSets = 30;  % sets number of training session per each hidden layer #
+trainSets = 50;  % sets number of training session per each hidden layer #
 
 %% Perform loops
 for k = hiddenNeuronsStart:hiddenNeuronsEnd
@@ -110,6 +112,6 @@ percentage
 maxPerNN = max(percentage)
 avgPerNN = mean(percentage)
 
-save('temp', 'percentage', 'maxPerNN', 'avgPerNN')
+save('percPerNN', 'percentage', 'maxPerNN', 'avgPerNN')
 
 

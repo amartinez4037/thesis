@@ -17,3 +17,9 @@ This project uses the EEGLAB and Neural Networks Toolboxes in MATLAB (2014b) in 
 
 ## Data
 All EEG data used in this project is from [Physionet](http://physionet.org/pn4/eegmmidb/) which can be viewed online at the [PhysioBank ATM](http://physionet.org/cgi-bin/atm/ATM). 
+
+-----
+
+## Help
+* [EEGLAB Wiki](http://sccn.ucsd.edu/wiki/EEGLAB) - There are plenty of explenations and tutorials here to helping with workind in EEGBLAB
+* [Introduction To Modern Brain-Computer Interface Design](http://sccn.ucsd.edu/wiki/Introduction_To_Modern_Brain-Computer_Interface_Design) - Online course available for free on Youtube to explain a lot of the basics for creating your own BCI
