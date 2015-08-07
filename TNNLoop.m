@@ -5,28 +5,31 @@
 %   Allows setting of desired parameters for NN training
 %
 
-%% Intitialization 
-%clc
-%clear
-
-% ThesisStart % Uncomment when running from command line
-
 %% Define the inputs and targets
-
 load nninoutenergy.mat;
 
-inputs = nninputs;
-targets = nntargets;
-sizeInputs = size(inputs)
-sizeTargets = size(targets)
+inputs = nninputs; sizeInputs = size(inputs)
+targets = nntargets; sizeTargets = size(targets)
 
+inputs(1:9,1:5)
+
+
+%% Initialize all variables
 hiddenNeuronsStart = 2; % number of hidden neurons min
 hiddenNeuronsEnd = 20;   % number of hidden neurons max
 desiredPerc = 85;  % sets the desired train percentage to get correct
 trainSets = 50;  % sets number of training session per each hidden layer #
 
+fprintf('***************************************************\n');
+fprintf('Starting NN training with %d training sessions\n',trainSets);
+fprintf('from %d to %d number of hidden NN\n', hiddenNeuronsStart, hiddenNeuronsEnd);
+fprintf('Looking for %d percentage correct\n', desiredPerc);
+fprintf('***************************************************\n');
+
 %% Perform loops
 for k = hiddenNeuronsStart:hiddenNeuronsEnd
+    fprintf('\n*****\nNumber of hidden neurons = %d\n*****\n', k);
+
     for i = 1:trainSets
         % Create a Pattern Recognition Network
         hiddenLayerSize = k;
@@ -52,7 +55,8 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
 
         % Choose a Performance Function
         % For a list of all performance functions type: help nnperformance
-        net.performFcn = 'mse';  % Mean squared error
+        %net.performFcn = 'mse';  % Mean squared error
+        net.performFcn = 'crossentropy';  % Cross-entropy
 
         % Choose Plot Functions
         % For a list of all plot functions type: help nnplot
@@ -78,36 +82,39 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         valPerformance = perform(net,valTargets,outputs);
         testPerformance = perform(net,testTargets,outputs);
 
+
+        %% Incorrectly based on these % at one point
         % Determine value of % error in training
-        t = testTargets;
-        y = outputs;
-        known = find(~isnan(sum(t,1)));
+        %t = testTargets;
+        %y = outputs;
+        %known = find(~isnan(sum(t,1)));
+        %TestOut = outputs(tr.testInd); TestTar = targets(tr.testInd);
+        %t = t(:,known); y = y(:,known);
+        %numSamples = size(t,2);
+        %[c,cm] = confusion(t,y);
+        %perc = sum(diag(cm))/numSamples * 100;
 
-        t = t(:,known);
-        y = y(:,known);
-        numSamples = size(t,2);
-        [c,cm] = confusion(t,y);
 
-        perc = sum(diag(cm))/numSamples*100;
-
+        fprintf('NN Percent: %.2f\n',testPerformance);
+        
         %% Saving the values of the weights and biases
-        if perc >= desiredPerc
+        if testPerformance >= desiredPerc
             N = hiddenLayerSize;
             weights_I = net.IW{1,1};
             weights_L = net.LW{2,1};
             bias_1 = net.b{1};
             bias_2 = net.b{2};
-            testCorrectPerc = perc
-            percentage(i,k - hiddenNeuronsStart + 1) = perc; %trainCorrectPerc
+            testCorrectPerc = testPerformance
+            percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
         else
-            percentage(i,k  - hiddenNeuronsStart + 1) = perc;
+            percentage(i,k - hiddenNeuronsStart + 1) = testPerformance; % perc w/ other
         end
         
         i = i+1;
     end
-    % max(percentage)
 end
 
+fprintf('Results of NN training:\n\n');
 percentage
 maxPerNN = max(percentage)
 avgPerNN = mean(percentage)

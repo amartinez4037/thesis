@@ -41,6 +41,6 @@ clc;
 cd ~/thesis % Change into home thesis folder
 
 
-%% Run Proper Scripts
+%% Run Proper Script
 TMainWavelets
-TNNLoop
+%TNNLoop

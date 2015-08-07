@@ -1,13 +1,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Thesis Work
-%    Run after starting bcilab and eeglab
-%       Can also run the Thesis_Start script
-%    Test to see how basic filtering looks
+%    Run after starting eeglab toolbox
+%    The TStart script can start this up automatically
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Set variables
-%clc
 % Channels used for ICA
 chanid = [2 4 6 9 10 11 12 13];
 %chanid - [9 11 13];
@@ -27,39 +26,53 @@ numsubjects = length(subject);
 prepost = {'PRE', 'POST'};
 numprepost = length(prepost);
 
+% PRE and POST information
+PRE = [-2 0]; 
+POST = [4.1 6.1];
+P = [PRE; POST];
+
 % Types - for use in epoching data
 types = {'ERD', 'ERS', 'MRCP'};
 numtypes = length(types);
+%numtypes = 2;
 
 % Sides - T1=>Left, T2=>Right
 sides = {'T1', 'T2'};
 numsides = length(sides);
 
+% Sides information 
+%T = {'12628', '12884'};
+T = {'2', '3'};
+
 % Runs = types x sides
 numruns = numtypes * numsides;
 
 % Epochs - set to 7 even though one will have 8 due to it refrencing out of bounds
-numepochs = 7;
+numepochs = 1;
 
 % Define paths for data location and storage
 homepath = '~/thesis/PhysionetData/EDF/'; % Location of EDF files
-filepath = '~/thesis/userscripts/'; % Location of storage folder
+filepath = '~/thesis/userscriptsOrg/'; % Location of storage folder
+
+fprintf('\nPerforming on data in: %s',filepath);
+fprintf('\nPre = %.1f to %.1f\nPost = %.1f to %.1f\n', PRE, POST);
+fprintf('\nNumber of types = %d\n, number of epochs = %d\n', numtypes, numepochs);
 
 
 %% Set each variable depending if process needs to be done
-do_import = 1; % If 0 will not edit channels, filter or artifact removal
-do_edit_channels = 0;
-do_edit_events = 0;
-do_filter = 0;
-do_artifact_removal = 0;
+do_import = 0; % If 0 will not edit channels, filter or artifact removal
+do_edit_channels = 1;
+do_edit_events = 1;
+do_filter = 1;
+do_artifact_removal = 1;
 
 do_epoch_ICA = 0;
 do_rhythmiso = 0;
 
 % Features - using [avg, pwr, ene]
-feat2use = [0,0,1];
-do_features = 0;
-do_NN = 0;
+feat2use = [1,0,1];
+do_features = 1;
+do_NN = 1;
 
 % Features - using wavelets - either highest coef or avg of x coef
 numWavAvg = 10;
@@ -72,14 +85,22 @@ do_NN_wave = 0;
 %% Prealocate size for features (num of features, number of feature sets)
 if (do_features_wavelet && do_wave_avg)
     features = zeros((120/numWavAvg)*numchan + 2, numepochs*numruns*numtrials*numsubjects);
-    wavSize = size(features)
+    fprintf('Performing Wave Averging of every %d coefficients\n', numWavAvg);
+    featSize = size(features)
+
 elseif (do_features_wavelet)
     features = zeros(numwavcoef*2*numchan + 2, numepochs*numruns*numtrials*numsubjects);
-    wavSize = size(features)
-else
-    features = zeros(24 + 2, numepochs*numruns*numtrials*numsubjects);
+    fprintf('Performing Top %d Wave Coefficients\n', numwavcoef);
     featSize = size(features)
+
+elseif (do_features)
+    features = zeros(24 + 2, numepochs*numruns*numtrials*numsubjects);
+    fprintf('Performing avg = %d, pwr = %d, and ene = %d\n', feat2use);
+    featSize = size(features)
+else
+    fprintf('No features being determined');
 end
+
 
 
 %% Start looping through subjects and trials
@@ -89,14 +110,16 @@ for s = 1:numsubjects
         
         % Add to path the subject
         foldername = [homepath subject{s} '/'];
+
         % Full name of each file for subject and trial together
         savename = [subject{s} trial{t}];
+
         % Full name of the file to retrieve
         filename = [foldername savename '.edf'];
               
         % Check if the file exists
         if exist(filename, 'file') <=0
-            fprintf('Warning file does not exist');
+            %fprintf('Warning file does not exist');
             error('File for %s %s does not exist', subject{s}, trial{t});
             
         else
@@ -203,7 +226,8 @@ for s = 1:numsubjects
             %% Filter data
             if (do_filter && do_import && do_edit_channels)
                 % To bandpass filter
-                EEG = pop_eegfiltnew(EEG, 0.5, 35, 1056, 0, [], 0);
+                %EEG = pop_eegfiltnew(EEG, 0.5, 45, 1056, 0, [], 0);
+                EEG = pop_eegfiltnew(EEG, 0.5, 45);
                 
                 % Low edge of frequency filter: 0.5Hz
                 %EEG = pop_iirfilt( EEG, 0.5, 0, [], [0]);
@@ -239,29 +263,12 @@ for s = 1:numsubjects
                 fprintf(' Skip Artifact Removal\n');
             end
 
-            %% Epoch data and perform ICA
-            if (do_epoch_ICA)
-                % Porper dataset will be loaded before epoching
-                % Each epoch will be saved after going through ICA
-                
-                % 4 epochs total T1(L), T2(R)
-                %  T1 - 12628 - ERD/MRCP - [-2 0] 
-                %  T2 - 12884 - ERD/MRCP - [-2 0]
-                %  T1 - 12628 - ERS - [4.1 6.1] 
-                %  T2 - 12884 - ERS - [4.1 6.1]
 
-                % Sides information 
-                %T = {'12628', '12884'};
-                T = {'2', '3'};
-                
-                % PRE and POST information
-                PRE = [-1.5 0.5]; 
-                POST = [3.5 5.5];
-                P = [PRE; POST];
-        
+            %% Epoch data, perform ICA, and save the dataset
+            if (do_epoch_ICA)
+
                 for si = 1:numsides
-                    for pp = 1:numprepost
-                        %% Epoch                        
+                    for pp = 1:numprepost                        
                         % Load Proper Dataset
                         EEG = pop_loadset('filename', [savename '_EpochReady.set'],'filepath',filepath);
               
@@ -270,7 +277,10 @@ for s = 1:numsubjects
                         
                         % ICA 
                         EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
-                        %EEG.icaact % Not finding icaact ???
+                        %size(EEG.icaact)
+                        %EEG = eeg_checkset(EEG, 'ica');
+                        %size(EEG.icaact)
+                        %EEG.icaact(1,1:10,1) % Not finding icaact ???
                         
                         % Save the dataset for each epoched set
                         fprintf('\nSaving %s %s %s\n\n', savename, sides{si}, prepost{pp});
@@ -304,11 +314,15 @@ for s = 1:numsubjects
                         EEG = pop_loadset('filename', [savename '_' sides{si} '_' prepost{k} '_ICA.set'],'filepath',filepath);
                        
                         if ty == 3
-                            EEG = pop_eegfiltnew(EEG, [], 3, 264, 0, [], 0);
+                            % Low Pass 3 Hz filter
+                            %EEG = pop_eegfiltnew(EEG, [], 3, 264, 0, [], 0);
+                            EEG = pop_eegfiltnew(EEG, [], 3);
 
                             %EEG = pop_iirfilt( EEG, 0, 3, [], [0]);
                         else
-                            EEG = pop_eegfiltnew(EEG, 8, 24, 264, 0, [], 0);
+                            % bandpass 8-30 Hz filter 
+                            %EEG = pop_eegfiltnew(EEG, 8, 30, 264, 0, [], 0);
+                            EEG = pop_eegfiltnew(EEG, 8, 30);
 
                             % Low edge of frequency filter: 8Hz
                             %EEG = pop_iirfilt( EEG, 8, 0, [], [0]);
@@ -319,7 +333,7 @@ for s = 1:numsubjects
 
                         % Delete old activation and scalp maps
                         %EEG.icaact = [];
-                        % EEG.icawinv = []; % IF DELETED NEED TO FILL IN HOW??????????????
+                        %EEG.icawinv = []; % IF DELETED NEED TO FILL IN HOW??????????????
 
                         % recalculate acts and winv using specified channels
                         %EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
@@ -354,29 +368,43 @@ for s = 1:numsubjects
                         EEG = pop_loadset('filename',...
                             [savename '_' sides{si} '_' types{ty} '.set'],'filepath',filepath);                         
                         
-                        EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
+                        %EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
+                        %act1 = eeg_getdatact(EEG, 'channel', chanid);
+                        %size(act1)
+                        %act1(1,1:10,1)
+
+                        % As defined in line 977 of EEG_checkset EEG.icaact is:
+                        %EEG.icaact = (EEG.icaweights * EEG.icasphere) * EEG.data(EEG.icachansind,:);
+                        %size(EEG.icaact)
+                        %EEG.icaact(1,1:10)
+
+                        act = EEG.icaweights * EEG.icasphere;
                         
-                        for e = 1: numepochs % For the 7 epochs
+                        for e = 1: numepochs  % Loop through the 7 epochs
                             % Preallocate zeros to avoid resizing matrix each iteration
-                            avg = zeros(1,numchan);
-                            pwr = zeros(1,numchan);
-                            ene = zeros(1,numchan);
+                            avg = zeros(1,numchan);  pwr = zeros(1,numchan);  ene = zeros(1,numchan);
                             
-                            % icaact(channel, data/channel, epoch number)
-                            for n = 1:numchan % channel number
+                            for n = 1:numchan  % Loop throudh each channel
+                                % icaact(channel, data/channel, epoch number)
                                 %avg(n) = mean(mean(EEG.icaact(n,:,:)));
-                                avg(n) = mean(EEG.icaact(n,:,e));
+                                %avg(n) = mean(EEG.icaact(n,:,e));
+                                %avg(n) = mean(EEG.icaact(n,(e-1)*320+1:e*320));
+                                avg(n) = mean(act(n,:));
                                 %pwr(n) = bandpower(EEG.icaact(n,:,1), 320, [8 30]);
                                 %pwr(n) = bandpower(EEG.icaact(n,:,e)', length(EEG.icaact), [0 30], 1, 3); %'
-                                pwr(n) = sum(EEG.icaact(n,:,e).^2);
+                                %pwr(n) = sum(EEG.icaact(n,:,e).^2);
+                                %pwr(n) = sum(EEG.icaact(n,(e-1)*320+1:e*320).^2);
+                                pwr(n) = sum(act(n,:).^2);
                                 %ene(n) = sum(sum(EEG.icaact(n,:,:).^2));
-                                ene(n) = sum(EEG.icaact(n,:,e).^2);
+                                %ene(n) = sum(EEG.icaact(n,:,e).^2);
+                                %ene(n) = sum(EEG.icaact(n,(e-1)*320+1:e*320).^2);
+                                ene(n) = sum(act(n,:).^2);
                             end
                             
                             % Set all values between 0.1 and 0.9 and transpose matrix
                             mi = 0.1;  mx = 0.9;
-                            avg = mapminmax(avg, mi, mx)';
-                            pwr = mapminmax(pwr, mi, mx)';
+                            avg = mapminmax(avg, mi, mx)'; %'
+                            pwr = mapminmax(pwr, mi, mx)'; %'
                             ene = mapminmax(ene, mi, mx)'; %'
 
                             % Set side to proper value
@@ -385,7 +413,7 @@ for s = 1:numsubjects
                             elseif strcmp(sides{si},'T2')
                                 side = 1;
                             else
-                                side = 5;
+                                error('Side for %s %s is incorrect', subject{s}, trial{t}); 
                             end
 
                             % Set type to proper value
@@ -396,24 +424,16 @@ for s = 1:numsubjects
                             elseif strcmp(types{ty},'MRCP')
                                 type = 3;
                             else
-                                type = 5;
+                                error('Type for %s %s is incorrect', subject{s}, trial{t});
                             end
 
-                            %fprintf('\nFeature set for %s %s %s\n', savename, sides{m}, types{u});
                             feature = [avg; pwr; ene; type; side];
-                            % feature'; %'
                             
                             r = ty + numtypes*(si-1); % for indexing
                             ind = e + numepochs*(r - 1) + numruns*numepochs*(t - 1) + numruns*numtrials*numepochs*(s - 1);
                             features(:,ind) = feature;
-                            
-                            
+                                                     
                         end
-                        % uncomment this to make sure features are being
-                        % extracted correctly
-                        %start = ind - 6 %numepochs*((si - 1)*numtypes + (ty - 1)) + 1
-                        %finish = start + numepochs - 1
-                        %features(:,start:finish)
                     end
                 end
       
@@ -436,14 +456,20 @@ for s = 1:numsubjects
                         EEG = pop_loadset('filename',...
                             [savename '_' sides{si} '_' types{ty} '.set'],'filepath',filepath);                         
                         
-                        EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
-                        
-                        %wavchan = 3;
-                        
+                        %EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
+                        %act1 = eeg_getdatact(EEG, 'channel', chanid);
+                        %size(act1)
+                        %act1(1,1:10,1)
+
+                        % As defined in line 977 of EEG_checkset EEG.icaact is:
+                        EEG.icaact = (EEG.icaweights * EEG.icasphere) * EEG.data(EEG.icachansind,:);
+                        %size(EEG.icaact)
+                        %EEG.icaact(1,1:10)
+
+                        %act = EEG.icaweights * EEG.icasphere;
 
                         for e = 1: numepochs % For the 7 epochs
                             % Preallocate zeros to avoid resizing matrix each iteration
-
                             if (do_wave_avg)
                                 numAvgs = 120/numWavAvg;
                                 wavT = zeros(1,numAvgs*numchan);
@@ -451,50 +477,44 @@ for s = 1:numsubjects
                                 wavT = zeros(1,numwavcoef*numchan*2); % mult by 2 for cD2 and cD3
                             end
 
-
                             % Loop through each channel to find desired value
-                            % icaact(channel, data/channel, epoch number)
                             for n = 1:numchan % channel number
-
+                                % icaact(channel, data per channel, epoch number)
                                 tempwave = EEG.icaact(n,:,e);
                                 
+                                % Do wavelet analysis to the third level
                                 [C,L] = wavedec(tempwave,3,'db1');
                                 [cD1,cD2,cD3] = detcoef(C,L,[1,2,3]);
 
-                                if (do_wave_avg)
-                                    %numWavAvg = 10;
-
+                                if (do_wave_avg)  
                                     lencD2 = length(cD2);
                                     lencD3 = length(cD3);
-
-                                    %%%%%%%
-                                    % Figure out how to average out the wave coefficients
 
                                     k = lencD2/numWavAvg;
                                     l = lencD3/numWavAvg;
                                     wav = zeros(1,k+l);
 
-                                    for kk = 1:k
+                                    for kk = 1:k  % average of cD2 channels
                                         indWav = (kk-1)*numWavAvg;
                                         wav(kk) = mean(cD2(indWav + 1 : indWav + numWavAvg));
                                     end
 
-                                    for ll = 1:l
+                                    for ll = 1:l  % average of cD3 channels
                                         indWav = (ll-1)*numWavAvg;
                                         wav(kk+ll) = mean(cD3(indWav + 1 : indWav + numWavAvg));
                                     end
 
-                                    %wavT(1, :) = wav(:)
-
                                     indWav = (n-1)*numAvgs;
                                     wavT(1, indWav + 1 : indWav + numAvgs) = wav(1, 1 : numAvgs);
-                                else
+
+                                else  % Take X highest amount of coefficients
                                     cD3sort = sort(cD3,'descend');
                                     cD2sort = sort(cD2,'descend');
 
-                                    %fprintf('*** channel %d epoch %d', n, e);
-                                    wav = cD3sort(1,1:numwavcoef);
-                                    wav(1,numwavcoef + 1: numwavcoef*2) = cD2sort(1,1:numwavcoef);
+                                    wav = zeros(1, numwavcoef*2);
+
+                                    wav(1, 1             : numwavcoef)   = cD3sort(1,1:numwavcoef);
+                                    wav(1, numwavcoef + 1: numwavcoef*2) = cD2sort(1,1:numwavcoef);
 
                                     indWav = (n-1)*numwavcoef*2;
                                     wavT(1, indWav + 1 : indWav + numwavcoef*2) = wav(1, 1 : numwavcoef*2);
@@ -510,7 +530,6 @@ for s = 1:numsubjects
 
                             %wavTseeAfter = wavT' % '
                             
-
                             % Set type to proper value
                             if strcmp(types{ty},'ERD')
                                 type = 1;
@@ -519,7 +538,7 @@ for s = 1:numsubjects
                             elseif strcmp(types{ty},'MRCP')
                                 type = 3;
                             else
-                                type = 5;
+                                error('Side for %s %s is incorrect', subject{s}, trial{t});
                             end
 
                             % Set side to proper value
@@ -528,7 +547,7 @@ for s = 1:numsubjects
                             elseif strcmp(sides{si},'T2')
                                 side = 1;
                             else
-                                side = 5;
+                                error('Type for %s %s is incorrect', subject{s}, trial{t});
                             end
 
                             %fprintf('\nFeature set for %s %s %s\n', savename, sides{m}, types{u});
@@ -539,11 +558,6 @@ for s = 1:numsubjects
                             features(:,ind) = feature;
                                
                         end
-                        % uncomment this to make sure features are being
-                        % extracted correctly
-                        %start = ind - 6 %numepochs*((si - 1)*numtypes + (ty - 1)) + 1
-                        %finish = start + numepochs - 1
-                        %features(35:42,wavSize(2) - 27:wavSize(2))
                     end
                 end
                 
@@ -556,20 +570,19 @@ for s = 1:numsubjects
 end
 
 
+%% NN for wavelet features
 if (do_NN_wave && do_features_wavelet)
 
-    Tar = wavSize(1);
+    Tar = featSize(1);
     nninputs = features(1:Tar - 1,:);
     nntargets = features(Tar,:);
 
-    size(nninputs)
-    size(nntargets)
-    save('nninoutenergy', 'nninputs', 'nntargets')
 else
     fprintf('NO NN Inputs/outputs for wavelets\n');
 end
 
 
+%% NN for avg, pow, and ene 
 if (do_NN && do_features)
     Avg = (1:8); Pow = (9:16); Ene = (17:24);
     Typ = 25; Tar = 26;
@@ -579,27 +592,31 @@ if (do_NN && do_features)
     k = 1;
 
     for rng = 1 : tot   
-
         while feat2use(k) ~= 1
             fprintf('Skipped K')
             k = k+1;
         end
 
         nninputs(range(rng,:),:) = features(range(k,:),:);
-        fprintf('range = %d', range(k,1))
+        % fprintf('range = %d', range(k,1))
         k = k+1;
     end
 
     [row, col] = size(nninputs);
-
     nninputs(row+1,:) = features(Typ,:);
-    %nninputs(25,:) = mapminmax(nninputs(25,:),mi, mx);
     nntargets = features(Tar,:);
-    %nntargets = mapminmax(nntargets,mi,mx)
-    %size(nninputs)
-    %size(nntargets)
-    save('nninoutenergy', 'nninputs', 'nntargets')
+
 else
     fprintf('NO NN Inputs/outputs\n');
 end
 
+
+%% Save NN inputs and outputs and start NN training
+if (do_NN | do_NN_wave)
+    nninputs(1:9,1:5)
+    sizenninputs = size(nninputs)
+    sizenntargets = size(nntargets)
+    save('nninoutenergy', 'nninputs', 'nntargets')
+
+    TNNLoop
+end
