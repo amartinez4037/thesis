@@ -8,7 +8,7 @@
 
 %% Set variables
 % Channels used for ICA
-chanid - [9 11 13];
+chanid = [9 11 13];
 numchan = length(chanid);
 
 % Trials to be used for analysis
@@ -23,7 +23,7 @@ subject = {'S001','S002','S003','S004','S005','S006','S007','S008','S009','S010'
 numsubjects = 6; % Change for testing
 
 % Set the epoch time
-epochtime = [0 4.1]
+epochtime = [0 4.1];
 
 % Sides - T1=>Left, T2=>Right
 sides = {'T1', 'T2'};
@@ -36,22 +36,19 @@ T = {'2', '3'};
 % Runs = sides
 numruns = numsides;
 
-% Epochs - set to 7 even though one will have 8 due to it refrencing out of bounds
-numepochs = 7;
-
 % Define paths for data location and storage
 homepath = '~/thesis/PhysionetData/EDF/'; % Location of EDF files
 filepath = '~/thesis/userscripts/'; % Location of storage folder
 
 fprintf('\nPerforming on data in: %s',filepath);
 fprintf('\nEpoch time = %.1f to %.1f\n', epochtime);
-fprintf('\nNumber of epochs = %d\n', numepochs);
+%fprintf('\nNumber of epochs = %d\n', numepochs);
 
 
 %% Set each variable depending if process needs to be done
-do_import = 1; % If 0 will not edit channels, filter or artifact removal
+do_import = 0; % If 0 will not edit channels, filter or artifact removal
 do_edit_channels = 1;
-do_edit_events = 0;
+do_edit_events = 1;
 do_filter = 1;
 do_artifact_removal = 1;
 
@@ -60,19 +57,19 @@ do_epoch = 0;
 % Features - using wavelets - either highest coef or avg of x coef
 numWavAvg = 10;
 numwavcoef = 5;
-do_features_wavelet = 0;
+do_features_wavelet = 1;
 do_wave_avg = 0;
-do_NN_wave = 0;
+do_NN_wave = 1;
 
 
 %% Prealocate size for features (num of features, number of feature sets)
 if (do_features_wavelet && do_wave_avg)
-    features = zeros((120/numWavAvg)*numchan + 1, numepochs*numruns*numtrials*numsubjects);
+    features = zeros((120/numWavAvg)*numchan + 1, 15*numtrials*numsubjects);
     fprintf('Performing Wave Averging of every %d coefficients\n', numWavAvg);
     featSize = size(features)
 
 elseif (do_features_wavelet)
-    features = zeros(numwavcoef*2*numchan + 1, numepochs*numruns*numtrials*numsubjects);
+    features = zeros(numwavcoef*2*numchan + 1, 15*numtrials*numsubjects);
     fprintf('Performing Top %d Wave Coefficients\n', numwavcoef);
     featSize = size(features)
 
@@ -84,7 +81,7 @@ end
 %% Start looping through subjects and trials
 for s = 1:numsubjects
     for t = 1:numtrials
-        fprintf('\n*****\nProcessing Subject: %s, Trial: %s\n*****\n', subject{s}, trial{t});
+        fprintf('\n*****\nProcessing Subject: %s, Trial: %s\n*****\n\n', subject{s}, trial{t});
         
         % Add to path the subject
         foldername = [homepath subject{s} '/'];
@@ -177,11 +174,11 @@ for s = 1:numsubjects
                 % Check to ensure at minimum variables known are true in new events
                 for kk = 1: num_annotations
                     if annotations(kk,2) ~= events_found(kk,2)
-                        error('Types are not the same');
+                        error('\nTypes are not the same');
                     end
                     
                     if annotations(kk,4) ~= events_found(kk,4)
-                        error('Durations are not the same');
+                        error('\nDurations are not the same');
                     end   
                 end
 
@@ -248,9 +245,9 @@ for s = 1:numsubjects
 
                     % Save the dataset for each epoched set
                     fprintf('\nSaving %s %s\n\n', savename, sides{si});
-                    EEG = pop_editset(EEG, 'setname', [savename '_' sides{si} '']);
+                    EEG = pop_editset(EEG, 'setname', [savename '_' sides{si} '_FeatReady']);
                     EEG = pop_saveset(EEG, 'filename',...
-                        [savename '_' sides{si} '_ICA.set'],'filepath',filepath);
+                        [savename '_' sides{si} '_FeatReady.set'],'filepath',filepath);
 
                 end
 
@@ -265,16 +262,18 @@ for s = 1:numsubjects
                 
                 % Features for wavelets
                 % Features for each channel:
-                for si = 1: numsides % T1 and T2
-                    %for ty = 1: numtypes % ERD, ERS, and MRCP
-                    
+
+                r = 0;
+                for si = 1: numsides % T1 and T2 
                     fprintf('\nPrepping wavelet features for %s_%s\n',savename, sides{si});                        
                     
                     % Load Proper Dataset
                     EEG = pop_loadset('filename',...
-                        [savename '_' sides{si} '.set'],'filepath',filepath);                         
+                        [savename '_' sides{si} '_FeatReady.set'],'filepath',filepath);   
 
-                    for e = 1: numepochs % For the 7 epochs
+                    numepochs = EEG.trials;
+
+                    for e = 1: numepochs % For the 7 or 8 epochs
                         % Preallocate zeros to avoid resizing matrix each iteration
                         if (do_wave_avg)
                             numAvgs = 120/numWavAvg;
@@ -286,8 +285,8 @@ for s = 1:numsubjects
                         % Loop through each channel to find desired value
                         for n = 1:numchan % channel number
 
-                            %%%%%%% Set to epoch not icaact
-                            tempwave = EEG.icaact(n,:,e);
+                            % fprintf('\nChannel ID is: %d ang epoch is: %d\n', chanid(n), e);
+                            tempwave = EEG.data(chanid(n),:,e);
                             
                             % Do wavelet analysis to the third level
                             [C,L] = wavedec(tempwave,3,'db1');
@@ -311,7 +310,7 @@ for s = 1:numsubjects
                                     wav(kk+ll) = mean(cD3(indWav + 1 : indWav + numWavAvg));
                                 end
 
-                                indWav = (n-1)*numAvgs;
+                                indWav = (n-1) * numAvgs;
                                 wavT(1, indWav + 1 : indWav + numAvgs) = wav(1, 1 : numAvgs);
 
                             else  % Take X highest amount of coefficients
@@ -323,7 +322,7 @@ for s = 1:numsubjects
                                 wav(1, 1             : numwavcoef)   = cD3sort(1,1:numwavcoef);
                                 wav(1, numwavcoef + 1: numwavcoef*2) = cD2sort(1,1:numwavcoef);
 
-                                indWav = (n-1)*numwavcoef*2;
+                                indWav = (n-1) * numwavcoef*2;
                                 wavT(1, indWav + 1 : indWav + numwavcoef*2) = wav(1, 1 : numwavcoef*2);
                             end
 
@@ -342,16 +341,13 @@ for s = 1:numsubjects
                             error('Side for %s %s is incorrect', subject{s}, trial{t});
                         end
 
-                        %fprintf('\nFeature set for %s %s\n', savename, sides{m});
                         feature = [wavT; side];
-                        
-                        %r = ty + numtypes*(si-1); % for indexing
-                        %ind = e + numepochs*(r - 1) + numruns*numepochs*(t - 1) + numruns*numtrials*numepochs*(s - 1);
-                        ind = e + numruns*numepochs*(t - 1) + numruns*numtrials*numepochs*(s - 1);
+
+                        ind = e + r + 15*(t - 1) + 15*numtrials*(s - 1);
                         features(:,ind) = feature;
                            
                     end
-                    %end
+                    r = numepochs;
                 end
                 
             else
@@ -371,18 +367,14 @@ if (do_NN_wave && do_features_wavelet)
     nninputs = features(1:Tar - 1,:);
     nntargets = features(Tar,:);
 
-else
-    fprintf('NO NN Inputs/outputs for wavelets\n');
-end
-
-
-
-%% Save NN inputs and outputs and start NN training
-if (do_NN | do_NN_wave)
     nninputs(1:9,1:5)
     sizenninputs = size(nninputs)
     sizenntargets = size(nntargets)
+
     save('nninoutenergy', 'nninputs', 'nntargets')
 
     TNNLoop
+
+else
+    fprintf('NO NN Inputs/outputs for wavelets\n');
 end
