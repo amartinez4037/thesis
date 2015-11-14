@@ -1,7 +1,5 @@
 # Thesis
 
-This is the the project I am working on for my Masters in Computer Engineering
-
 This project uses the EEGLAB and Neural Networks Toolboxes in MATLAB (2014b) in order to distinguish between Left and Right hand movements based on EEG. 
 
 -----
