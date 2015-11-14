@@ -1,9 +1,9 @@
-% 
-% Aron Martinez
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Pattern Recognition using Neural Network 
 %   Allows setting of desired parameters for NN training
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Define the inputs and targets
 load nninoutenergy.mat;
@@ -17,8 +17,8 @@ inputs(1:9,1:5)
 %% Initialize all variables
 hiddenNeuronsStart = 2; % number of hidden neurons min
 hiddenNeuronsEnd = 20;   % number of hidden neurons max
-desiredPerc = 85;  % sets the desired train percentage to get correct
-trainSets = 50;  % sets number of training session per each hidden layer #
+desiredPerc = 80;  % sets the desired train percentage to get correct
+trainSets = 100;  % sets number of training session per each hidden layer #
 
 fprintf('***************************************************\n');
 fprintf('Starting NN training with %d training sessions\n',trainSets);
@@ -28,7 +28,7 @@ fprintf('***************************************************\n');
 
 %% Perform loops
 for k = hiddenNeuronsStart:hiddenNeuronsEnd
-    fprintf('\n*****\nNumber of hidden neurons = %d\n*****\n', k);
+    %fprintf('\n*****\nNumber of hidden neurons = %d\n*****\n', k);
 
     for i = 1:trainSets
         % Create a Pattern Recognition Network
@@ -95,7 +95,7 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         %perc = sum(diag(cm))/numSamples * 100;
 
 
-        fprintf('NN Percent: %.2f\n',testPerformance);
+        % fprintf('NN Percent: %.2f\n',testPerformance);
         
         %% Saving the values of the weights and biases
         if testPerformance >= desiredPerc
@@ -117,8 +117,14 @@ end
 fprintf('Results of NN training:\n\n');
 percentage
 maxPerNN = max(percentage)
-avgPerNN = mean(percentage)
+maxPerNNsort = sort(percentage,'descend')
+top5max = maxPerNNsort(1:5,:)
+max(maxPerNN)
+%avgPerNN = mean(percentage)
 
-save('percPerNN', 'percentage', 'maxPerNN', 'avgPerNN')
+save('WandB', 'weights_L', 'weights_I', 'bias_2', 'bias_1', 'testCorrectPerc', 'N')
+save('percPerNN', 'percentage', 'maxPerNN')%, 'avgPerNN')
+
+N
 
 

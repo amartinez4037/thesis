@@ -1,37 +1,27 @@
-%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %   TStart
-%       File for starting EEGLAB and BCILAB if needed
-%       Includes changing/adding proper directories
+%       File for starting EEGLAB
+%       Includes changing/adding proper directories (if needed)
 %
-%%%%%%%%%%
+%		* Currently using EEGLAB version 13.4.4b
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear;
 clc;
 
-%% Start BCILAB
-% addpath(genpath('/home/amart/BCILAB-master')); % For engrX Server
-% addpath(genpath('/opt/matlab/opt/BCILAB-1.1')); % For Quantum Server
-%cd /opt/matlab/opt/BCILAB-1.1
-
-%bcilab;
-
-
 %% Start EEGLAB
-% cd /opt/matlab/opt/eeglab13_4_3_b % 
-%rmpath /opt/matlab/opt/eeglab13_4_4b/ % if needed to remove path of non-working eeglab
-%cd ~/eeglab13_4_4b/ % CD or AddPath for eeglab
-
-eeglab; % Start EEGLAB
+% If EEGLAB is not already in path it needs to be added or you need to cd into proper directory
+eeglab;
 
 
-%% % Bring in AAR toolbox - once brought in and redrawn no need to repeat
+%% Bring in AAR toolbox - once brought in and redrawn no need to repeat
 % eeglabRoot = fileparts(which('eeglab'));
 % url = 'https://github.com/germangh/eeglab_plugin_aar/archive/master.zip';
 % unzip(url, [eeglabRoot filesep 'plugins']);
 % addpath(genpath(eeglabRoot));
 % eeglab redraw;
-
 
 %% Clear workspace
 clc;
@@ -40,7 +30,6 @@ clc;
 %% Change directory into location of scripts to run
 cd ~/thesis % Change into home thesis folder
 
-
-%% Run Proper Script
-TMainWavelets
-%TNNLoop
+%% Run Proper Script for processing and classification
+% TMain
+TMainWave

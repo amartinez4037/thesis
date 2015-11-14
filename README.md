@@ -8,8 +8,7 @@ This project uses the EEGLAB and Neural Networks Toolboxes in MATLAB (2014b) in 
 
 ## Toolboxes
 * [EEGLAB](http://sccn.ucsd.edu/wiki/EEGLAB_revision_history_version_13) - Toolbox for working with EEG currently using 13.4.4b
-* [BCILAB toolbox](https://github.com/sccn/BCILAB) - Allows for the modification and analysis of the EDF files
-* [EEGLAB extensions/plugins](http://sccn.ucsd.edu/wiki/EEGLAB_Extensions) - List of extensions (formerly called plugins) that can be used with EEGLAB
+* [EEGLAB extensions/plugins](http://sccn.ucsd.edu/wiki/EEGLAB_Extensions) - List of extensions (formerly called plugins) that can be used with EEGLAB. The following are needed to run program
 	* [AAR (Automatic Artifact Removal)](https://github.com/germangh/eeglab_plugin_aar) - Toolbox used for EOG and EMG removal
 	* [BioSig](http://biosig.sourceforge.net) - For importing EDF files, which is how the files are saved on Physionet
 
@@ -22,4 +21,5 @@ All EEG data used in this project is from [Physionet](http://physionet.org/pn4/e
 
 ## Help
 * [EEGLAB Wiki](http://sccn.ucsd.edu/wiki/EEGLAB) - There are plenty of explenations and tutorials here to helping with workind in EEGBLAB
+* [ERP Scripting](http://erpinfo.org/erplab/erplab-documentation/scripting_4/Getting_Started.html) - This tutorial goes over scripting using EEGLAB
 * [Introduction To Modern Brain-Computer Interface Design](http://sccn.ucsd.edu/wiki/Introduction_To_Modern_Brain-Computer_Interface_Design) - Online course available for free on Youtube to explain a lot of the basics for creating your own BCI

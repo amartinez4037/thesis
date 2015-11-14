@@ -1,11 +1,12 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Thesis Work
 %    Attempt to bring in the proper event labels
 %      Due to the events being cut off in current pop_biosig function
-%   
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%		*** Events after 7 have not been edited correctly   
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [event_list] = event_finder(dur1, dur2, sub, trial)
 
@@ -36,7 +37,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
     
 	switch sub
 		case 'S001'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -104,7 +105,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
 		case 'S002'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -172,7 +173,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
 		case 'S003'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -240,7 +241,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
 		case 'S004'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -308,7 +309,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
 		case 'S005'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -376,7 +377,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
 		case 'S006'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -444,9 +445,10 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% None of these have been modified to proper values
         case 'S007'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -514,7 +516,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S008'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -582,7 +584,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S009'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -650,7 +652,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S010'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -718,7 +720,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S011'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -786,7 +788,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S012'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -854,7 +856,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S013'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -922,7 +924,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S014'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -990,7 +992,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S015'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -1058,7 +1060,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S016'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -1126,7 +1128,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S017'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -1194,7 +1196,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S018'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -1262,7 +1264,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S019'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
@@ -1330,7 +1332,7 @@ function [event_list] = event_finder(dur1, dur2, sub, trial)
             end
 
         case 'S020'
-			fprintf('Subject %s\n', sub);
+			fprintf('Subject %s', sub);
 			switch trial
 				case 'R03'
 					fprintf('     Trial %s\n', trial);
