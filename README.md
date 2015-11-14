@@ -22,8 +22,4 @@ All EEG data used in this project is from [Physionet](http://physionet.org/pn4/e
 ## Help
 * [EEGLAB Wiki](http://sccn.ucsd.edu/wiki/EEGLAB) - There are plenty of explenations and tutorials here to helping with workind in EEGBLAB
 * [ERP Scripting](http://erpinfo.org/erplab/erplab-documentation/scripting_4/Getting_Started.html) - This tutorial goes over scripting using EEGLAB
-<<<<<<< HEAD
 * [Introduction To Modern Brain-Computer Interface Design](http://sccn.ucsd.edu/wiki/Introduction_To_Modern_Brain-Computer_Interface_Design) - Online course available for free on Youtube to explain a lot of the basics for creating your own BCI
-=======
-* [Introduction To Modern Brain-Computer Interface Design](http://sccn.ucsd.edu/wiki/Introduction_To_Modern_Brain-Computer_Interface_Design) - Online course available for free on Youtube to explain a lot of the basics for creating your own BCI
->>>>>>> 3d675daf629a21e8d02c1034df0b6818820e9ddf
