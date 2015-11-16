@@ -88,8 +88,8 @@ do_epoch = 0;
 numWavAvg = 10;
 numwavcoef = 5;
 do_features_wavelet = 1;
-do_wave_avg = 0;
-do_NN_wave = 1;5
+do_wave_avg = 1;
+do_NN_wave = 1;
 %% Prealocate size for features (num of features, number of feature sets)
 if (do_features_wavelet && do_wave_avg)
     features = zeros((wavecoefnum/numWavAvg)*numchan + 1, 15*numtrials*numsubjects);

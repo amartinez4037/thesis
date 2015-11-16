@@ -19,7 +19,7 @@ inputs(1:9,1:5);
 hiddenNeuronsStart = 2; % number of hidden neurons min
 hiddenNeuronsEnd = 30;   % number of hidden neurons max
 desiredPerc = 0.80;  % sets the desired train percentage to get correct
-trainSets = 100;  % sets number of training session per each hidden layer #
+trainSets = 500;  % sets number of training session per each hidden layer #
 
 fprintf('***************************************************\n');
 fprintf('Starting NN training with %d training sessions\n',trainSets);
