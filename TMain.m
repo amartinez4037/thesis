@@ -46,12 +46,10 @@ numchan = length(chanid);
 % Trials to be used for analysis
 trial = {'R03', 'R07', 'R11'};
 numtrials = length(trial);  
-%numtrials = 2; % Change for testing
 
 % Subjects
 subject = {'S001','S002','S003','S004','S005','S006'};
 numsubjects = length(subject);  
-%numsubjects = 1; % Change for testing
 
 % Pre or post for epochs
 prepost = {'PRE', 'POST'};
@@ -65,7 +63,6 @@ P = [PRE; POST];
 % Types - for use in epoching data
 types = {'ERD', 'ERS', 'MRCP'};
 numtypes = length(types);
-%numtypes = 2;
 
 % Sides - T1=>Left, T2=>Right
 sides = {'T1', 'T2'};
@@ -78,14 +75,14 @@ T = {'2', '3'};
 % Runs = types x sides
 numruns = numtypes * numsides;
 
-% Epochs - set to 7 even though one will have 8 due to it refrencing out of bounds
+% Epochs - set to 7 even though one will have 8 due to it refrencing out of bounds on POST
 %   If set to 1 then only analyzing 1 epoch, unless only checking the icaact
 %   This does not effect how many epochs are created only the number to be analyzed
 numepochs = 7;
 
 % Define paths for data location and storage
-homepath = '~/thesis/PhysionetData/EDF/'; % Location of EDF files
-filepath = '~/thesis/userscripts/'; % Location of storage folder
+homepath = '~/thesis/Data/PhysionetData/EDF/'; % Location of EDF files
+filepath = '~/thesis/Data/userscripts/'; % Location of storage folder
 
 fprintf('\nPerforming on data in: %s',filepath);
 fprintf('\nPre = %.1f to %.1f\nPost = %.1f to %.1f\n', PRE, POST);
@@ -141,27 +138,22 @@ for s = 1:numsubjects
     for t = 1:numtrials
         fprintf('\n*****\nProcessing Subject: %s, Trial: %s\n*****\n', subject{s}, trial{t});
         
-        % Add to path the subject
-        foldername = [homepath subject{s} '/'];
-
-        % Full name of each file for subject and trial together
-        savename = [subject{s} trial{t}];
-
-        % Full name of the file to retrieve
-        filename = [foldername savename '.edf'];
+        % Finish setting the path to where files located and to where files are written
+        foldername = [homepath subject{s} '/']; % Add to path the subject
+        savename = [subject{s} trial{t}]; % Full name of each file for subject and trial
+        filename = [foldername savename '.edf']; % Full name of the file to retrieve
               
         % Check if the file exists
         if exist(filename, 'file') <=0
-            %fprintf('Warning file does not exist');
             error('File for %s %s does not exist', subject{s}, trial{t});
             
-        else
+        else % If the file exists then perform processing
+
             %% Import Data
-            if (do_import)
-                % Import using BIOSIG - for EDF files
+            if (do_import) % Import using BIOSIG - for EDF files
                 EEG = pop_biosig(filename);
             else
-                fprintf('Skip Org Import  ');
+                fprintf('Skip Import  ');
             end
             
 
@@ -311,7 +303,7 @@ for s = 1:numsubjects
                         % ICA 
                         EEG = pop_runica(EEG, 'icatype','runica','dataset',1,'options',{'extended' 1},'chanind',chanid );
 
-                        $ Check to see if data in EEG.icaact
+                        % Check to see if data in EEG.icaact
                         %size(EEG.icaact)
                         %EEG = eeg_checkset(EEG, 'ica');
                         %size(EEG.icaact)
@@ -491,10 +483,6 @@ for s = 1:numsubjects
                         EEG = pop_loadset('filename',...
                             [savename '_' sides{si} '_' types{ty} '.set'],'filepath',filepath);                         
                         
-                        %EEG.icaact = eeg_getdatact(EEG, 'channel', chanid);
-                        %act1 = eeg_getdatact(EEG, 'channel', chanid);
-                        %size(act1)
-                        %act1(1,1:10,1)
 
                         % As defined in line 977 of EEG_checkset EEG.icaact is:
                         EEG.icaact = (EEG.icaweights * EEG.icasphere) * EEG.data(EEG.icachansind,:);
@@ -649,10 +637,15 @@ end
 
 %% Save NN inputs and outputs and start NN training
 if (do_NN | do_NN_wave)
-    nninputs(1:9,1:5)
-    sizenninputs = size(nninputs)
-    sizenntargets = size(nntargets)
+
+    nninputs(1:9,1:5);
+    sizenninputs = size(nninputs);
+    sizenntargets = size(nntargets);
+
     save('nninoutenergy', 'nninputs', 'nntargets')
 
     TNNLoop
+
+else
+    fprintf('NO NN Inputs/outputs for wavelets\n');
 end

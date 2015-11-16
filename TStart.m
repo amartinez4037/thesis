@@ -31,5 +31,5 @@ clc;
 cd ~/thesis % Change into home thesis folder
 
 %% Run Proper Script for processing and classification
-% TMain
-TMainWave
+TMain 
+% TMainWave

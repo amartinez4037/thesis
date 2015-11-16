@@ -67,8 +67,8 @@ T = {'2', '3'};
 numruns = numsides;
 
 % Define paths for data location and storage
-homepath = '~/thesis/PhysionetData/EDF/'; % Location of EDF files
-filepath = '~/thesis/userscriptswave/'; % Location of storage folder
+homepath = '~/thesis/Data/PhysionetData/EDF/'; % Location of EDF files
+filepath = '~/thesis/Data/userscriptswave/'; % Location of storage folder
 
 fprintf('\nPerforming on data in: %s with %d subjects',filepath, numsubjects);
 fprintf('\nEpoch time = %.1f to %.1f with %d datapoints', epochtime, datapoints);
@@ -86,12 +86,10 @@ do_epoch = 0;
 
 % Features - using wavelets - either highest coef or avg of x coef
 numWavAvg = 10;
-numwavcoef = 10;
+numwavcoef = 5;
 do_features_wavelet = 1;
 do_wave_avg = 0;
-do_NN_wave = 1;
-
-
+do_NN_wave = 1;5
 %% Prealocate size for features (num of features, number of feature sets)
 if (do_features_wavelet && do_wave_avg)
     features = zeros((wavecoefnum/numWavAvg)*numchan + 1, 15*numtrials*numsubjects);
@@ -111,28 +109,25 @@ end
 %% Start looping through subjects and trials
 for s = 1:numsubjects
     for t = 1:numtrials
-        fprintf('\n*****\nProcessing Subject: %s, Trial: %s\n*****\n\n', subject{s}, trial{t});
-        
-        % Add to path the subject
-        foldername = [homepath subject{s} '/'];
+        fprintf('\n******** Processing Subject: %s, Trial: %s\n\n', subject{s}, trial{t});
 
-        % Full name of each file for subject and trial together
-        savename = [subject{s} trial{t}];
+        % Finish setting the path to where files located and to where files are written
+        foldername = [homepath subject{s} '/']; % Add to path the subject
+        savename = [subject{s} trial{t}]; % Full name of each file for subject and trial
+        filename = [foldername savename '.edf']; % Full name of the file to retrieve
 
-        % Full name of the file to retrieve
-        filename = [foldername savename '.edf'];
               
         % Check if the file exists
         if exist(filename, 'file') <=0
             error('File for %s %s does not exist', subject{s}, trial{t});
             
-        else
+        else % If the file exists then perform processing
+
             %% Import Data
-            if (do_import)
-                % Import using BIOSIG - for EDF files
+            if (do_import) % Import using BIOSIG - for EDF files
                 EEG = pop_biosig(filename);
             else
-                fprintf('Skip Org Import  ');
+                fprintf('Skip Import  ');
             end
             
 
@@ -292,7 +287,6 @@ for s = 1:numsubjects
                 
                 % Features for wavelets
                 % Features for each channel:
-
                 r = 0;
                 for si = 1: numsides % T1 and T2 
                     fprintf('\nPrepping wavelet features for %s_%s\n',savename, sides{si});                        
@@ -301,7 +295,7 @@ for s = 1:numsubjects
                     EEG = pop_loadset('filename',...
                         [savename '_' sides{si} '_FeatReady4s.set'],'filepath',filepath);   
 
-                    numepochs = EEG.trials
+                    numepochs = EEG.trials;
 
                     for e = 1: numepochs % For the 7 or 8 epoch
                         % Preallocate zeros to avoid resizing matrix each iteration
@@ -397,9 +391,9 @@ if (do_NN_wave && do_features_wavelet)
     nninputs = features(1:Tar - 1,:);
     nntargets = features(Tar,:);
 
-    nninputs(1:9,1:5)
-    sizenninputs = size(nninputs)
-    sizenntargets = size(nntargets)
+    nninputs(1:9,1:5);
+    sizenninputs = size(nninputs);
+    sizenntargets = size(nntargets);
 
     save('nninoutenergy', 'nninputs', 'nntargets')
 

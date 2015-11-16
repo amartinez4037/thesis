@@ -10,20 +10,21 @@ load nninoutenergy.mat;
 
 inputs = nninputs; sizeInputs = size(inputs)
 targets = nntargets; sizeTargets = size(targets)
+conditionmet = 0;
 
-inputs(1:9,1:5)
+inputs(1:9,1:5);
 
 
 %% Initialize all variables
 hiddenNeuronsStart = 2; % number of hidden neurons min
-hiddenNeuronsEnd = 20;   % number of hidden neurons max
-desiredPerc = 80;  % sets the desired train percentage to get correct
+hiddenNeuronsEnd = 30;   % number of hidden neurons max
+desiredPerc = 0.80;  % sets the desired train percentage to get correct
 trainSets = 100;  % sets number of training session per each hidden layer #
 
 fprintf('***************************************************\n');
 fprintf('Starting NN training with %d training sessions\n',trainSets);
-fprintf('from %d to %d number of hidden NN\n', hiddenNeuronsStart, hiddenNeuronsEnd);
-fprintf('Looking for %d percentage correct\n', desiredPerc);
+fprintf('   from %d to %d number of hidden NN\n', hiddenNeuronsStart, hiddenNeuronsEnd);
+fprintf('Looking for %.2f percentage correct\n', desiredPerc* 100);
 fprintf('***************************************************\n');
 
 %% Perform loops
@@ -73,6 +74,10 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         errors = gsubtract(targets,outputs);
         performance = perform(net,targets,outputs);
 
+        tind = vec2ind(targets);
+        yind = vec2ind(outputs);
+        percErrors = sum(tind ~= yind)/numel(tind);
+
         % Recalculate Training, Validation and Test Performance
         trainTargets = targets .* tr.trainMask{1};
         valTargets = targets  .* tr.valMask{1};
@@ -81,7 +86,6 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         trainPerformance = perform(net,trainTargets,outputs);
         valPerformance = perform(net,valTargets,outputs);
         testPerformance = perform(net,testTargets,outputs);
-
 
         %% Incorrectly based on these % at one point
         % Determine value of % error in training
@@ -99,6 +103,7 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         
         %% Saving the values of the weights and biases
         if testPerformance >= desiredPerc
+            fprintf('Found a top percentage: %d', testPerformance);
             N = hiddenLayerSize;
             weights_I = net.IW{1,1};
             weights_L = net.LW{2,1};
@@ -106,6 +111,7 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
             bias_2 = net.b{2};
             testCorrectPerc = testPerformance
             percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
+            conditionmet = 1;
         else
             percentage(i,k - hiddenNeuronsStart + 1) = testPerformance; % perc w/ other
         end
@@ -114,17 +120,28 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
     end
 end
 
-fprintf('Results of NN training:\n\n');
-percentage
-maxPerNN = max(percentage)
-maxPerNNsort = sort(percentage,'descend')
-top5max = maxPerNNsort(1:5,:)
-max(maxPerNN)
+fprintf('Results of NN training:\n');
+percentage  % Output all percentages
+maxPerNNsort = sort(percentage,'descend');
+top5max = maxPerNNsort(1:5,:) % Output top 5 percentages 
+maxPerNN = max(percentage);
+[maxPercentage, NeuronIndex] = max(maxPerNN);
+
+MaximumPercentage = maxPercentage * 100;
+HiddenNeurons = NeuronIndex + hiddenNeuronsStart - 1;
+
+fprintf('Max test percentage is %.2f at %d Hidden Neurons \n',MaximumPercentage, HiddenNeurons);
+
+
 %avgPerNN = mean(percentage)
 
-save('WandB', 'weights_L', 'weights_I', 'bias_2', 'bias_1', 'testCorrectPerc', 'N')
-save('percPerNN', 'percentage', 'maxPerNN')%, 'avgPerNN')
+if conditionmet
+    N
+    save('WandB', 'weights_L', 'weights_I', 'bias_2', 'bias_1', 'testCorrectPerc', 'N')
+end
 
-N
+save('percPerNN', 'percentage', 'top5max', 'maxPercentage')
+
+
 
 
