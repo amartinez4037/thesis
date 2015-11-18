@@ -35,7 +35,7 @@
 %chanid = [9 11 13];
 chanid = [2 4 6 9 10 11 12 13];
 numchan = length(chanid);
-
+ 
 % Trials to be used for analysis
 %trial = {'R04', 'R08', 'R12'};
 trial = {'R03', 'R07', 'R11'};
@@ -100,7 +100,7 @@ if (do_features_wavelet && do_wave_avg)
     fprintf('Performing Wave Averging of every %d coefficients\n', numWavAvg);
     fprintf('Feature size is: [%d, %d]\n', size(features));
     featSize = size(features);
-    
+
 elseif (do_features_wavelet)
     features = zeros(numwavcoef*2*numchan + 1, 15*numtrials*numsubjects);
     fprintf('Performing Top %d Wave Coefficients\n', numwavcoef);

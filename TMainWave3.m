@@ -62,7 +62,7 @@ numsides = length(sides);
 % Sides information 
 %T = {'12628', '12884'};
 T = {'2', '3'};
-
+ 
 % Runs = sides
 numruns = numsides;
 

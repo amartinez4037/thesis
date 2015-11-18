@@ -10,7 +10,7 @@
 
 clear;
 clc;
-
+ 
 %% Start EEGLAB
 % If EEGLAB is not already in path it needs to be added or you need to cd into proper directory
 eeglab;
