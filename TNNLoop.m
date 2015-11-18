@@ -5,27 +5,26 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Define the inputs and targets
+%% Define inputs and targets
 load nninoutenergy.mat;
-
-inputs = nninputs; sizeInputs = size(inputs)
-targets = nntargets; sizeTargets = size(targets)
-conditionmet = 0;
-
-inputs(1:9,1:5);
-
+inputs = nninputs; sizeInputs = size(inputs);
+targets = nntargets; sizeTargets = size(targets);
 
 %% Initialize all variables
 hiddenNeuronsStart = 2; % number of hidden neurons min
 hiddenNeuronsEnd = 30;   % number of hidden neurons max
 desiredPerc = 0.80;  % sets the desired train percentage to get correct
-trainSets = 500;  % sets number of training session per each hidden layer #
+trainSets = 50;  % sets number of training session per each hidden layer #
 
-fprintf('***************************************************\n');
-fprintf('Starting NN training with %d training sessions\n',trainSets);
-fprintf('   from %d to %d number of hidden NN\n', hiddenNeuronsStart, hiddenNeuronsEnd);
-fprintf('Looking for %.2f percentage correct\n', desiredPerc* 100);
-fprintf('***************************************************\n');
+conditionmet = 0; % flag for keeping track if desired percentage met 
+
+%% Print conditions for NN training
+fprintf('********************************************************\n');
+fprintf('* Starting NN training with %d training sessions\n',trainSets);
+fprintf('*    from %d to %d number of hidden NN\n', hiddenNeuronsStart, hiddenNeuronsEnd);
+fprintf('* Looking for %.2f percentage correct\n', desiredPerc* 100);
+fprintf('* Input size is: [%d, %d], target size is: [%d, %d]\n', sizeInputs, sizeTargets);
+fprintf('********************************************************\n');
 
 %% Perform loops
 for k = hiddenNeuronsStart:hiddenNeuronsEnd
@@ -37,12 +36,10 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         net = patternnet(hiddenLayerSize);
 
         % Choose Input and Output Pre/Post-Processing Functions
-        % For a list of all processing functions type: help nnprocess
         net.inputs{1}.processFcns = {'removeconstantrows','mapminmax'};
         net.outputs{2}.processFcns = {'removeconstantrows','mapminmax'};
 
         % Setup Division of Data for Training, Validation, Testing
-        % For a list of all data division functions type: help nndivide
         net.divideFcn = 'dividerand';  % Divide data randomly
         net.divideMode = 'sample';  % Divide up every sample
         
@@ -50,23 +47,24 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         net.divideParam.valRatio = 15/100;
         net.divideParam.testRatio = 15/100;
 
-        % For help on training function 'trainscg' type: help trainscg
-        % For a list of all training functions type: help nntrain
+        % Choose the Training Function
         net.trainFcn = 'trainscg';  % Scaled conjugate gradient
 
         % Choose a Performance Function
-        % For a list of all performance functions type: help nnperformance
         %net.performFcn = 'mse';  % Mean squared error
         net.performFcn = 'crossentropy';  % Cross-entropy
 
         % Choose Plot Functions
-        % For a list of all plot functions type: help nnplot
         net.plotFcns = {'plotperform','plottrainstate','ploterrhist', ...
           'plotregression', 'plotfit'};
 
-        net.trainParam.epochs = 1000; 	% Sets max # of epochs to ...
+        % Set the Training Parameters
+        net.trainParam.epochs = 1000;
+        net.trainParam.showWindow = false;
+        net.trainParam.goal = .01;
 
         % Train the Network 
+        net = init(net);
         [net,tr] = train(net,inputs,targets);
 
         % Test the Network
@@ -87,21 +85,9 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         valPerformance = perform(net,valTargets,outputs);
         testPerformance = perform(net,testTargets,outputs);
 
-        %% Incorrectly based on these % at one point
-        % Determine value of % error in training
-        %t = testTargets;
-        %y = outputs;
-        %known = find(~isnan(sum(t,1)));
-        %TestOut = outputs(tr.testInd); TestTar = targets(tr.testInd);
-        %t = t(:,known); y = y(:,known);
-        %numSamples = size(t,2);
-        %[c,cm] = confusion(t,y);
-        %perc = sum(diag(cm))/numSamples * 100;
-
-
         % fprintf('NN Percent: %.2f\n',testPerformance);
         
-        %% Saving the values of the weights and biases
+        %% Save the values of the weights and biases if met
         if testPerformance >= desiredPerc
             fprintf('Found a top percentage: %d', testPerformance);
             N = hiddenLayerSize;
@@ -113,30 +99,31 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
             percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
             conditionmet = 1;
         else
-            percentage(i,k - hiddenNeuronsStart + 1) = testPerformance; % perc w/ other
+            percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
         end
         
         i = i+1;
     end
 end
 
+%% Show Results of NN training
 fprintf('Results of NN training:\n');
 percentage  % Output all percentages
 maxPerNNsort = sort(percentage,'descend');
 top5max = maxPerNNsort(1:5,:) % Output top 5 percentages 
+
+% Find max percentage with index to determine # of hidden neurons
 maxPerNN = max(percentage);
 [maxPercentage, NeuronIndex] = max(maxPerNN);
-
 MaximumPercentage = maxPercentage * 100;
 HiddenNeurons = NeuronIndex + hiddenNeuronsStart - 1;
 
+% Print the max test percentage and the number of hidden neurons 
 fprintf('Max test percentage is %.2f at %d Hidden Neurons \n',MaximumPercentage, HiddenNeurons);
 
-
-%avgPerNN = mean(percentage)
-
+%% Save desired values
 if conditionmet
-    N
+    fprintf('Desired hidden layer size = %d', N)
     save('WandB', 'weights_L', 'weights_I', 'bias_2', 'bias_1', 'testCorrectPerc', 'N')
 end
 

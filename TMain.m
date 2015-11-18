@@ -80,14 +80,19 @@ numruns = numtypes * numsides;
 %   This does not effect how many epochs are created only the number to be analyzed
 numepochs = 7;
 
-% Define paths for data location and storage
-homepath = '~/thesis/Data/PhysionetData/EDF/'; % Location of EDF files
-filepath = '~/thesis/Data/userscripts/'; % Location of storage folder
 
+% Define paths for data location and storage
+homedir = pwd;
+homepath = fullfile(homedir, '/Data/PhysionetData/EDF/'); % Location of EDF files
+filepath = fullfile(homedir, '/Data/userscripts/'); % Location of storage folder
+%homepath = '~/thesis/Data/PhysionetData/EDF/'; % Location of EDF files
+%filepath = '~/thesis/Data/userscripts/'; % Location of storage folder
+
+fprintf('********************************************************\n');
 fprintf('\nPerforming on data in: %s',filepath);
 fprintf('\nPre = %.1f to %.1f\nPost = %.1f to %.1f\n', PRE, POST);
 fprintf('\nNumber of types = %d\n, number of epochs = %d\n', numtypes, numepochs);
-
+fprintf('********************************************************\n');
 
 %% Set each variable depending if process needs to be done
 do_import = 0; % If 0 will not edit channels, filter or artifact removal
@@ -108,7 +113,7 @@ do_NN = 0;
 numWavAvg = 10;
 numwavcoef = 10;
 do_features_wavelet = 1;
-do_wave_avg = 1;
+do_wave_avg = 0;
 do_NN_wave = 1;
 
 
@@ -593,6 +598,16 @@ for s = 1:numsubjects
     end
 end
 
+% Print Procedure
+if (do_features_wavelet && do_wave_avg)
+    fprintf('\nPerforming Wave Averging of every %d coefficients\n', numWavAvg);
+
+elseif (do_features_wavelet)
+    fprintf('\nPerforming Top %d Wave Coefficients\n', numwavcoef);
+
+else
+    fprintf('\nNo features being determined');
+end
 
 %% NN for wavelet features
 if (do_NN_wave && do_features_wavelet)
