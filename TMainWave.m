@@ -1,8 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Thesis Work
+% TMainWave
 %   Run after running TStart script (starts EEGLAB toolbox)
 %   Requires pop_biosig and AAR toolboxes to be installed
+%   
+%   Performs wave analysis using 8 channels as follows:
 %   
 %   Program consists of the following operations:
 %       Set Variables
@@ -70,8 +72,6 @@ numruns = numsides;
 homedir = pwd;
 homepath = fullfile(homedir, '/Data/PhysionetData/EDF/'); % Location of EDF files
 filepath = fullfile(homedir, '/Data/userscriptswave/'); % Location of storage folder
-%homepath = '~/thesis/Data/PhysionetData/EDF/'; % Location of EDF files
-%filepath = '~/thesis/Data/userscriptswave/'; % Location of storage folder
 
 fprintf('********************************************************\n');
 fprintf('\nPerforming on data in: %s with %d subjects',filepath, numsubjects);
@@ -92,7 +92,7 @@ do_epoch = 0;
 numWavAvg = 10;
 numwavcoef = 10;
 do_features_wavelet = 1;
-do_wave_avg = 0;
+do_wave_avg = 1;
 do_NN_wave = 1;
 %% Prealocate size for features (num of features, number of feature sets)
 if (do_features_wavelet && do_wave_avg)

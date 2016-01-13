@@ -25,5 +25,5 @@ eeglab;
 
 %% Run Proper Script for processing and classification
 % TMain 
-% TMainWave
-TMainWave3
+TMainWave
+% TMainWave3

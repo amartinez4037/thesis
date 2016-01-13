@@ -4,6 +4,9 @@
 %   Run after running TStart script (starts EEGLAB toolbox)
 %   Requires pop_biosig and AAR toolboxes to be installed
 %   
+%   Finds the average, power, and/or energy of an epoch of original EEG data
+%   Can also perform wavelet analysis of those epochs
+%   
 %   Program consists of the following operations:
 %       Set Variables
 %           - Sets the variables for what work will be done on (can choose)
@@ -85,8 +88,6 @@ numepochs = 7;
 homedir = pwd;
 homepath = fullfile(homedir, '/Data/PhysionetData/EDF/'); % Location of EDF files
 filepath = fullfile(homedir, '/Data/userscripts/'); % Location of storage folder
-%homepath = '~/thesis/Data/PhysionetData/EDF/'; % Location of EDF files
-%filepath = '~/thesis/Data/userscripts/'; % Location of storage folder
 
 fprintf('********************************************************\n');
 fprintf('\nPerforming on data in: %s',filepath);
@@ -418,17 +419,10 @@ for s = 1:numsubjects
                             
                             for n = 1:numchan  % Loop throudh each channel
                                 % icaact(channel, data/channel, epoch number)
-                                %avg(n) = mean(mean(EEG.icaact(n,:,:)));
-                                %avg(n) = mean(EEG.icaact(n,:,e));
                                 avg(n) = mean(EEG.icaact(n,(e-1)*320+1:e*320));
                                     %avg(n) = mean(act(n,:));
-                                %pwr(n) = bandpower(EEG.icaact(n,:,1), 320, [8 30]);
-                                %pwr(n) = bandpower(EEG.icaact(n,:,e)', length(EEG.icaact), [0 30], 1, 3); %'
-                                %pwr(n) = sum(EEG.icaact(n,:,e).^2);
                                 pwr(n) = sum(EEG.icaact(n,(e-1)*320+1:e*320).^2);
                                     %pwr(n) = sum(act(n,:).^2);
-                                %ene(n) = sum(sum(EEG.icaact(n,:,:).^2));
-                                %ene(n) = sum(EEG.icaact(n,:,e).^2);
                                 ene(n) = sum(EEG.icaact(n,(e-1)*320+1:e*320).^2);
                                     %ene(n) = sum(act(n,:).^2);
                             end

@@ -4,6 +4,8 @@
 %   Run after running TStart script (starts EEGLAB toolbox)
 %   Requires pop_biosig and AAR toolboxes to be installed
 %   
+%   Performs wave analysis using 3 channels as follows:
+%   
 %   Program consists of the following operations:
 %       Set Variables
 %           - Sets the variables for what work will be done on (can choose)
@@ -70,8 +72,6 @@ numruns = numsides;
 homedir = pwd;
 homepath = fullfile(homedir, '/Data/PhysionetData/EDF/'); % Location of EDF files
 filepath = fullfile(homedir, '/Data/userscriptswave3/'); % Location of storage folder
-%homepath = '~/thesis/Data/PhysionetData/EDF/'; % Location of EDF files
-%filepath = '~/thesis/Data/userscriptswave3/'; % Location of storage folder
 
 fprintf('********************************************************\n');
 fprintf('* Performing on data in: %s with %d subjects\n',filepath, numsubjects);
@@ -92,7 +92,7 @@ do_epoch = 0;
 numWavAvg = 10;
 numwavcoef = 10;
 do_features_wavelet = 1;
-do_wave_avg = 0;
+do_wave_avg = 1;
 do_NN_wave = 1;
 %% Prealocate size for features (num of features, number of feature sets)
 if (do_features_wavelet && do_wave_avg)
@@ -103,7 +103,7 @@ if (do_features_wavelet && do_wave_avg)
 
 elseif (do_features_wavelet)
     features = zeros(numwavcoef*2*numchan + 1, 15*numtrials*numsubjects);
-    fprintf('Performing Top %d Wave Coefficients unsorted\n', numwavcoef);
+    fprintf('Performing Top %d Wave Coefficients u1sorted\n', numwavcoef);
     fprintf('Feature size is: [%d, %d]\n', size(features));
     featSize = size(features);
 
@@ -344,8 +344,8 @@ for s = 1:numsubjects
                                 wavT(1, indWav + 1 : indWav + numAvgs) = wav(1, 1 : numAvgs);
 
                             else  % Take X highest amount of coefficients
-                                cD3sort = sort(cD3,'descend');
-                                cD2sort = sort(cD2,'descend');
+                                cD3sort = cD3; %sort(cD3,'descend');
+                                cD2sort = cD2; %sort(cD2,'descend');
 
                                 wav = zeros(1, numwavcoef*2);
 
