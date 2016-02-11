@@ -4,7 +4,7 @@
 %   Run after running TStart script (starts EEGLAB toolbox)
 %   Requires pop_biosig and AAR toolboxes to be installed
 %   
-%   Performs wave analysis using 8 channels as follows:
+%   Performs wave analysis using X channels (3 or 8) as follows:
 %   
 %   Program consists of the following operations:
 %       Set Variables
@@ -34,10 +34,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Set variables
+
+% Decide if using 3 or 8 channels
 %chanid = [9 11 13];
 chanid = [2 4 6 9 10 11 12 13];
 numchan = length(chanid);
- 
+
 % Trials to be used for analysis
 %trial = {'R04', 'R08', 'R12'};
 trial = {'R03', 'R07', 'R11'};
@@ -71,12 +73,19 @@ numruns = numsides;
 % Define paths for data location and storage
 homedir = pwd;
 homepath = fullfile(homedir, '/Data/PhysionetData/EDF/'); % Location of EDF files
-filepath = fullfile(homedir, '/Data/userscriptswave/'); % Location of storage folder
+if (numchan = 3)
+    filepath = fullfile(homedir, '/Data/userscriptswave3/'); % Location of storage folder
+elseif (numchan = 8)
+    filepath = fullfile(homedir, '/Data/userscriptswave/'); % Location of storage folder
+else
+    error('Number of channels not 3 or 8');
+end
 
 fprintf('********************************************************\n');
-fprintf('\nPerforming on data in: %s with %d subjects',filepath, numsubjects);
-fprintf('\nEpoch time = %.1f to %.1f with %d datapoints', epochtime, datapoints);
-fprintf('\nWith that many datapoints there are %d points to work on up to third level\n', wavecoefnum);
+fprintf('* Performing wave analysis on data in: %s\n',filepath);
+fprintf('* There are %d subjects with %d channels\n', numsubjects, numchan);
+fprintf('* Epoch time = %.1f to %.1f with %d datapoints\n', epochtime, datapoints);
+fprintf('* With that many datapoints there are %d points to work on up to third level\n', wavecoefnum);
 fprintf('********************************************************\n\n');
 
 %% Set each variable depending if process needs to be done
@@ -97,13 +106,13 @@ do_NN_wave = 1;
 %% Prealocate size for features (num of features, number of feature sets)
 if (do_features_wavelet && do_wave_avg)
     features = zeros((wavecoefnum/numWavAvg)*numchan + 1, 15*numtrials*numsubjects);
-    fprintf('Performing Wave Averging of every %d coefficients\n', numWavAvg);
+    fprintf('Performing Wave Averaging of every %d coefficients\n', numWavAvg);
     fprintf('Feature size is: [%d, %d]\n', size(features));
     featSize = size(features);
 
 elseif (do_features_wavelet)
     features = zeros(numwavcoef*2*numchan + 1, 15*numtrials*numsubjects);
-    fprintf('Performing Top %d Wave Coefficients\n', numwavcoef);
+    fprintf('Performing Top %d Wave Coefficients sorted\n', numwavcoef);
     fprintf('Feature size is: [%d, %d]\n', size(features));
     featSize = size(features);
 
@@ -345,8 +354,10 @@ for s = 1:numsubjects
 
                             else  % Take X highest amount of coefficients
                                 cD3sort = sort(cD3,'descend');
+                                %cD3sort = cD3; % if not to be sorted
                                 cD2sort = sort(cD2,'descend');
-
+                                %cD2sort = cD2; % if not to be sorted
+                                
                                 wav = zeros(1, numwavcoef*2);
 
                                 wav(1, 1             : numwavcoef)   = cD3sort(1,1:numwavcoef);

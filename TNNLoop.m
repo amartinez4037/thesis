@@ -123,7 +123,7 @@ fprintf('Max test percentage is %.2f at %d Hidden Neurons \n',MaximumPercentage,
 
 %% Save desired values
 if conditionmet
-    fprintf('Desired hidden layer size = %d', N)
+    fprintf('Optimum hidden layer size = %d', N)
     save('WandB', 'weights_L', 'weights_I', 'bias_2', 'bias_1', 'testCorrectPerc', 'N')
 end
 
