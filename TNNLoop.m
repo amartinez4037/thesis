@@ -122,6 +122,7 @@ HiddenNeurons = NeuronIndex + hiddenNeuronsStart - 1;
 fprintf('Max test percentage is %.2f at %d Hidden Neurons \n',MaximumPercentage, HiddenNeurons);
 
 %% Save desired values
+    % Will only save the weights and biases of the last set that met the condition and not all sets
 if conditionmet
     fprintf('Optimum hidden layer size = %d', N)
     save('WandB', 'weights_L', 'weights_I', 'bias_2', 'bias_1', 'testCorrectPerc', 'N')
