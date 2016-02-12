@@ -10,7 +10,7 @@
 %   Program consists of the following operations:
 %       Set Variables
 %           - Sets the variables for what work will be done on (can choose)
-%       Import Data (pop_biosid toolbox if working with EDF+)
+%       Import Data (pop_biosig toolbox if working with EDF+)
 %           - Imports data and sets it equal to EEG
 %       Edit Channels
 %           - Edits the names of channels so that EEGLAB can automatically 

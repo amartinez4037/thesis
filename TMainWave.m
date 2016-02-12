@@ -9,7 +9,7 @@
 %   Program consists of the following operations:
 %       Set Variables
 %           - Sets the variables for what work will be done on (can choose)
-%       Import Data (pop_biosid toolbox if working with EDF+)
+%       Import Data (pop_biosig toolbox if working with EDF+)
 %           - Imports data and sets it equal to EEG
 %       Edit Channels
 %           - Edits the names of channels so that EEGLAB can automatically 
@@ -357,7 +357,7 @@ for s = 1:numsubjects
                                 %cD3sort = cD3; % if not to be sorted
                                 cD2sort = sort(cD2,'descend');
                                 %cD2sort = cD2; % if not to be sorted
-                                
+
                                 wav = zeros(1, numwavcoef*2);
 
                                 wav(1, 1             : numwavcoef)   = cD3sort(1,1:numwavcoef);
