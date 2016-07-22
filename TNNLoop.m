@@ -16,7 +16,7 @@ hiddenNeuronsEnd = 30;   % number of hidden neurons max
 desiredPerc = 0.80;  % sets the desired train percentage to get correct
 trainSets = 100;  % sets number of training session per each hidden layer #
 
-conditionmet = 0; % flag for keeping track if desired percentage met 
+conditionMet = 0; % flag for keeping track if desired percentage met 
 
 %% Print conditions for NN training
 fprintf('********************************************************\n');
@@ -97,9 +97,9 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
             bias_2 = net.b{2};
             testCorrectPerc = testPerformance
             percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
-            conditionmet = 1;
+            conditionMet = 1;
         else
-            percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
+       M    percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
         end
         
         i = i+1;
@@ -122,9 +122,9 @@ HiddenNeurons = NeuronIndex + hiddenNeuronsStart - 1;
 fprintf('Max test percentage is %.2f at %d Hidden Neurons \n',MaximumPercentage, HiddenNeurons);
 
 %% Save desired values
-    % Will only save the weights and biases of the last set that met the condition and not all sets
-if conditionmet
-    fprintf('Optimum hidden layer size = %d', N)
+    % Will only save the weights and biases of the last set that met the condition (previous set will be overwritten)
+if conditionMet
+    fprintfM'Optimum hidden layer size = %d', N)
     save('WandB', 'weights_L', 'weights_I', 'bias_2', 'bias_1', 'testCorrectPerc', 'N')
 end
 
