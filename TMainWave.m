@@ -3,20 +3,20 @@
 % TMainWave
 %   Run after running TStart script (starts EEGLAB toolbox)
 %   Requires pop_biosig and AAR toolboxes to be installed
-%   
+%
 %   Performs wave analysis using X channels (3 or 8) as follows:
-%   
+%
 %   Program consists of the following operations:
 %       Set Variables
 %           - Sets the variables for what work will be done on (can choose)
 %       Import Data (pop_biosig toolbox if working with EDF+)
 %           - Imports data and sets it equal to EEG
 %       Edit Channels
-%           - Edits the names of channels so that EEGLAB can automatically 
+%           - Edits the names of channels so that EEGLAB can automatically
 %             find their location
 %           - Currently only works if 64 channnels imported
 %       Edit Events
-%           - Edits the event annotations 
+%           - Edits the event annotations
 %               - Currently events not being imported correctly and are edited
 %                 here to show correct location
 %       Filter Data
@@ -43,13 +43,13 @@ numchan = length(chanid);
 % Trials to be used for analysis
 %trial = {'R04', 'R08', 'R12'};
 trial = {'R03', 'R07', 'R11'};
-numtrials = length(trial);  
+numtrials = length(trial);
 %numtrials = 2; % Change for testing
 
 % Subjects
 subject = {'S001','S002','S003','S004','S005','S006','S007','S008','S009','S010',...
     'S011','S012','S013','S014','S015','S016','S017','S018','S019','S020'};
-%numsubjects = length(subject);  
+%numsubjects = length(subject);
 numsubjects = 6; % Change for testing
 
 % Set the epoch time and find how many data points there are
@@ -63,7 +63,7 @@ wavecoefnum = datapoints * 3 / 8;
 sides = {'T1', 'T2'};
 numsides = length(sides);
 
-% Sides information 
+% Sides information
 %T = {'12628', '12884'};
 T = {'2', '3'};
 
@@ -131,11 +131,11 @@ for s = 1:numsubjects
         savename = [subject{s} trial{t}]; % Full name of each file for subject and trial
         filename = [foldername savename '.edf']; % Full name of the file to retrieve
 
-              
+
         % Check if the file exists
         if exist(filename, 'file') <=0
             error('File for %s %s does not exist', subject{s}, trial{t});
-            
+
         else % If the file exists then perform processing
 
             %% Import Data
@@ -144,12 +144,12 @@ for s = 1:numsubjects
             else
                 fprintf('Skip Import  ');
             end
-            
+
 
             %% Edit Channel Locations
             if (do_edit_channels && do_import)
                 % Need to be edited because of extra periods added at the end of each
-                % channel name. Every channel has been included. 
+                % channel name. Every channel has been included.
                 EEG = pop_chanedit(EEG, 'lookup','standard-10-5-cap385.elp',...
                     'changefield',{1 'labels' 'Fc5'},'changefield',{2 'labels' 'Fc3'},...
                     'changefield',{3 'labels' 'Fc1'},'changefield',{4 'labels' 'Fcz'},...
@@ -187,12 +187,12 @@ for s = 1:numsubjects
             else
                 fprintf('Skip Channel Locations  ');
             end
-            
+
 
 
             %% Edit events
             if (do_import && do_edit_events && do_edit_channels)
-             
+
                 duration1 = EEG.event(1).duration;
                 duration2 = EEG.event(2).duration;
                 sub1 = subject{s};
@@ -200,8 +200,8 @@ for s = 1:numsubjects
 
                 num_annotations = length(EEG.event);
                 annotations = zeros(num_annotations, 4);
-                
-                for kk = 1: num_annotations 
+
+                for kk = 1: num_annotations
                     annotations(kk,1) = kk; % urevent number
                     annotations(kk,2) = EEG.event(kk).type;
                     annotations(kk,3) = (EEG.event(kk).latency);
@@ -210,21 +210,21 @@ for s = 1:numsubjects
 
                 % Annotate events based on function
                 events_found = event_finder(duration1, duration2, sub1, trial1);
-                
+
                 % Check to ensure at minimum variables known are true in new events
                 for kk = 1: num_annotations
                     if annotations(kk,2) ~= events_found(kk,2)
                         error('\nTypes are not the same');
                     end
-                    
+
                     if annotations(kk,4) ~= events_found(kk,4)
                         error('\nDurations are not the same');
-                    end   
+                    end
                 end
 
                 fprintf('\nChanging info for EEG event and urevent\n');
                 for kk = 1: 30
-                    EEG.event(kk).urevent = events_found(kk,1);  
+                    EEG.event(kk).urevent = events_found(kk,1);
                     EEG.event(kk).type = events_found(kk,2);
                     EEG.event(kk).latency = events_found(kk,3);
                     EEG.event(kk).duration = events_found(kk,4);
@@ -232,11 +232,11 @@ for s = 1:numsubjects
                     EEG.urevent(kk).latency = events_found(kk,3);
                     EEG.urevent(kk).duration = events_found(kk,4);
                 end
-                
+
             else
                 fprintf('Skip Event edits  ');
             end
-         
+
 
 
             %% Filter data
@@ -248,7 +248,7 @@ for s = 1:numsubjects
             else
                 fprintf('Skip Freq Filtering  ');
             end
-            
+
 
 
             %% EOG and EMG filtering and saving data
@@ -276,10 +276,10 @@ for s = 1:numsubjects
             %% Epoch data and save the dataset
             if (do_epoch)
 
-                for si = 1:numsides                     
+                for si = 1:numsides
                     % Load Proper Dataset
                     EEG = pop_loadset('filename', [savename '_EpochReady4s.set'],'filepath',filepath);
-              
+
                     % Epoch
                     EEG = pop_epoch(EEG, { T{si} }, epochtime , 'epochinfo', 'yes');
 
@@ -294,21 +294,21 @@ for s = 1:numsubjects
             else
                 fprintf('Skipped Epochs\n');
             end % end epoch extraction
-            
+
 
 
             %% Feature Extraction Wavelets
             if (do_features_wavelet)
-                
+
                 % Features for wavelets
                 % Features for each channel:
                 r = 0;
-                for si = 1: numsides % T1 and T2 
-                    fprintf('\nPrepping wavelet features for %s_%s\n',savename, sides{si});                        
-                    
+                for si = 1: numsides % T1 and T2
+                    fprintf('\nPrepping wavelet features for %s_%s\n',savename, sides{si});
+
                     % Load Proper Dataset
                     EEG = pop_loadset('filename',...
-                        [savename '_' sides{si} '_FeatReady4s.set'],'filepath',filepath);   
+                        [savename '_' sides{si} '_FeatReady4s.set'],'filepath',filepath);
 
                     numepochs = EEG.trials;
 
@@ -326,12 +326,12 @@ for s = 1:numsubjects
 
                             %fprintf('\nChannel ID is: %d and epoch is: %d\n', chanid(n), e);
                             tempwave = EEG.data(chanid(n),:,e);
-                            
+
                             % Do wavelet analysis to the third level
                             [C,L] = wavedec(tempwave,3,'db1');
                             [cD1,cD2,cD3] = detcoef(C,L,[1,2,3]);
 
-                            if (do_wave_avg)  
+                            if (do_wave_avg)
                                 lencD2 = length(cD2);
                                 lencD3 = length(cD3);
 
@@ -386,11 +386,11 @@ for s = 1:numsubjects
 
                         ind = e + r + 15*(t - 1) + 15*numtrials*(s - 1);
                         features(:,ind) = feature;
-                           
+
                     end
                     r = numepochs;
                 end
-                
+
             else
                 fprintf('Skipped Feature selection wavelets\n');
             end
