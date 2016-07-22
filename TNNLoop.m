@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Pattern Recognition using Neural Network 
+% Pattern Recognition using Neural Network
 %   Allows setting of desired parameters for NN training
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -16,7 +16,7 @@ hiddenNeuronsEnd = 30;   % number of hidden neurons max
 desiredPerc = 0.80;  % sets the desired train percentage to get correct
 trainSets = 100;  % sets number of training session per each hidden layer #
 
-conditionMet = 0; % flag for keeping track if desired percentage met 
+conditionMet = 0; % flag for keeping track if desired percentage met
 
 %% Print conditions for NN training
 fprintf('********************************************************\n');
@@ -42,10 +42,10 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         % Setup Division of Data for Training, Validation, Testing
         net.divideFcn = 'dividerand';  % Divide data randomly
         net.divideMode = 'sample';  % Divide up every sample
-        
-        net.divideParam.trainRatio = 90/100;
-        net.divideParam.valRatio = 5/100;
-        net.divideParam.testRatio = 5/100;
+
+        net.divideParam.trainRatio = 70/100;
+        net.divideParam.valRatio = 15/100;
+        net.divideParam.testRatio = 15/100;
 
         % Choose the Training Function
         net.trainFcn = 'trainscg';  % Scaled conjugate gradient
@@ -63,7 +63,7 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         net.trainParam.showWindow = false;
         net.trainParam.goal = .01;
 
-        % Train the Network 
+        % Train the Network
         net = init(net);
         [net,tr] = train(net,inputs,targets);
 
@@ -80,13 +80,13 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         trainTargets = targets .* tr.trainMask{1};
         valTargets = targets  .* tr.valMask{1};
         testTargets = targets  .* tr.testMask{1};
-        
+
         trainPerformance = perform(net,trainTargets,outputs);
         valPerformance = perform(net,valTargets,outputs);
         testPerformance = perform(net,testTargets,outputs);
 
         % fprintf('NN Percent: %.2f\n',testPerformance);
-        
+
         %% Save the values of the weights and biases if met
         if testPerformance >= desiredPerc
             fprintf('Found a top percentage: %d', testPerformance);
@@ -101,7 +101,7 @@ for k = hiddenNeuronsStart:hiddenNeuronsEnd
         else
        M    percentage(i,k - hiddenNeuronsStart + 1) = testPerformance;
         end
-        
+
         i = i+1;
     end
 end
@@ -110,7 +110,7 @@ end
 fprintf('Results of NN training:\n');
 percentage  % Output all percentages
 maxPerNNsort = sort(percentage,'descend');
-top5max = maxPerNNsort(1:5,:) % Output top 5 percentages 
+top5max = maxPerNNsort(1:5,:) % Output top 5 percentages
 
 % Find max percentage with index to determine # of hidden neurons
 maxPerNN = max(percentage);
@@ -118,7 +118,7 @@ maxPerNN = max(percentage);
 MaximumPercentage = maxPercentage * 100;
 HiddenNeurons = NeuronIndex + hiddenNeuronsStart - 1;
 
-% Print the max test percentage and the number of hidden neurons 
+% Print the max test percentage and the number of hidden neurons
 fprintf('Max test percentage is %.2f at %d Hidden Neurons \n',MaximumPercentage, HiddenNeurons);
 
 %% Save desired values
@@ -129,7 +129,3 @@ if conditionMet
 end
 
 save('percPerNN', 'percentage', 'top5max', 'maxPercentage')
-
-
-
-
